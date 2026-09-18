@@ -52,6 +52,15 @@ def ensure_dir(path: str | Path) -> Path:
     return p
 
 
+def resolve_data_root(data_dir: str | Path) -> Path:
+    """Absolute runtime home. A relative `data_dir` is resolved against the
+    process cwd — which is the launching repo, since ADWs never chdir. Absolute
+    so session files stay put no matter which worktree the run later moves to.
+    """
+    p = Path(data_dir)
+    return p if p.is_absolute() else (Path.cwd() / p).resolve()
+
+
 def resolve_prompt(arg: str) -> str:
     """CLI prompt arg: a file path resolves to its contents, else inline text."""
     try:

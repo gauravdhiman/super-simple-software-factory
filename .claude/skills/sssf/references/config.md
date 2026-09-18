@@ -58,6 +58,19 @@ agents:
 | `db` | path | SQLite trace db. `tracer.py` writes it directly; the visualizer polls it. Default `adws/adw_data/sssf.db`. |
 | `poll_ms` | int | Visualizer live-poll cadence in ms. History uses the same queries, lazy-paged. Default `500`. |
 
+### `isolation`
+
+One git worktree + branch per run, so parallel ADWs never share a tree.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `enabled` | bool | Master switch. `false` = every ADW runs in place, exactly as before. Default `true`. |
+| `source_branch` | string | The ref new worktrees are cut from and rebased onto. `--source-branch` overrides it per run; with neither set, an interactive terminal is asked (default `main`), non-interactive runs take `main`. Default `main`. |
+| `worktree_dir` | path | Relative to the repo root; one dir per run (`sssf-<adw_id>`). Gitignored by `install.py`. Default `.worktrees`. |
+| `branch_prefix` | string | Branch per run is `<prefix><adw_id>`. Default `sssf/`. |
+
+The branch is what makes a later PR trivial — push it and open the PR against the source branch. The factory never pushes on its own: no push, no `gh pr create`, no force-update, no auto-resolved conflicts. A rebase conflict aborts (commits intact) or keeps the stash (uncommitted work intact) and fails the phase with the recovery commands.
+
 ### `agents[]`
 
 | Field | Required | Meaning |

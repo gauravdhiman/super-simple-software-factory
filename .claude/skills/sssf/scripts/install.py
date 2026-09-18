@@ -24,6 +24,10 @@ GITIGNORE_ENTRIES = [
     "adws/adw_data/sessions/",
     "adws/adw_data/sssf.db*",
     ".env",
+    # One git worktree per isolated run lives here (isolation.worktree_dir).
+    # Without this, `git status` in the launching repo shows every parallel
+    # run's worktree as untracked noise.
+    ".worktrees/",
     # The ADWs are Python, so importing adw_modules writes bytecode next to it.
     # Chains that end in a commit phase call `git add -A`, so without this a
     # stamped repo commits its own .pyc files — 15 of them showed up in the

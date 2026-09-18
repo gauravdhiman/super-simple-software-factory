@@ -11,12 +11,11 @@ from __future__ import annotations
 import json
 import time
 from contextlib import contextmanager
-from pathlib import Path
 
 from . import agents, git_helper
 from .console import Console
-from .data_types import AgentCall, EnvelopeBase, EventRecord, Phase, PhaseParams
-from .utils import ensure_dir, now_iso
+from .data_types import AgentCall, EnvelopeBase, EventRecord, IsolationInfo, Phase, PhaseParams
+from .utils import ensure_dir, now_iso, resolve_data_root
 
 
 class PhaseHandle:
@@ -50,8 +49,17 @@ class Run:
         self.tokens = 0
         self.cost = 0.0
         self._seq = tracer.max_phase_seq(adw_id)   # a joined run continues the sequence
-        self.repo_root = git_helper.repo_root()    # where every agent is spawned to work
-        self.session_dir = ensure_dir(Path(cfg.defaults.data_dir) / "sessions" / adw_id)
+        self.repo_root = git_helper.repo_root()    # where every agent is spawned to work.
+        # isolation.ensure() may re-point this at the run's own worktree; until
+        # then it is the launching repo.
+        self.isolation: IsolationInfo | None = None
+        # Absolute: the process cwd is the launching repo, but every consumer of
+        # these paths (agents, gates, quality) resolves them against the run's
+        # worktree once isolated — relative paths would silently follow the
+        # wrong root. The session runtime stays in the launching repo even for
+        # isolated runs, so one trace sees all parallel runs.
+        data_root = resolve_data_root(cfg.defaults.data_dir)
+        self.session_dir = ensure_dir(data_root / "sessions" / adw_id)
         self.context_handoff_dir = ensure_dir(self.session_dir / "context_handoff")
         self._agent_map_path = self.session_dir / "agent_map.json"
         self.agent_map: dict = (json.loads(self._agent_map_path.read_text())

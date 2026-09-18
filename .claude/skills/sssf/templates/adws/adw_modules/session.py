@@ -15,7 +15,7 @@ from pathlib import Path
 from .data_types import SSSFConfig
 from .runner import Run
 from .tracer import Tracer
-from .utils import engineer_name, new_id
+from .utils import engineer_name, new_id, resolve_data_root
 
 
 def _finalize_when_killed(run: Run) -> None:
@@ -37,8 +37,12 @@ def _finalize_when_killed(run: Run) -> None:
 
 def ensure(cfg: SSSFConfig, adw_id: str | None = None) -> Run:
     adw_id = adw_id or new_id(8)
-    tracer = Tracer(cfg.observability.db,
-                    f"{cfg.defaults.data_dir}/sessions/{adw_id}/events.jsonl")
+    # Absolute: an isolated run re-points its repo_root at a worktree, but the
+    # trace (db + events log) stays in the launching repo.
+    data_root = resolve_data_root(cfg.defaults.data_dir)
+    db_path = Path(cfg.observability.db)
+    db = str(db_path if db_path.is_absolute() else (Path.cwd() / db_path).resolve())
+    tracer = Tracer(db, data_root / "sessions" / adw_id / "events.jsonl")
     run = Run(cfg=cfg, adw_id=adw_id, tracer=tracer, engineer=engineer_name())
     tracer.session_start(adw_id, run.engineer, adw_name=Path(sys.argv[0]).stem)
     # This process is the run. Record it before any phase opens, so a run that

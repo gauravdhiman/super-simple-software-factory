@@ -19,6 +19,17 @@ uv run adws/<end-to-end-chain>.py "add a /health endpoint"
 uv run adws/<plan-build-verify-chain>.py requests/health.md
 uv run adws/<build-first-chain>.py "implement the plan" --adw-id a1b2c3d4
 uv run adws/<recon-chain>.py "where is auth handled" --config path/to/other.config.yaml
+# cut the worktree from a different base, or run in place
+uv run adws/<chain>.py "add a /health endpoint" --source-branch develop
+uv run adws/<chain>.py "add a /health endpoint" --no-worktree
+```
+
+Mutating chains isolate by default (worktree `.worktrees/sssf-<adw_id>`, branch `sssf/<adw_id>`); committing chains rebase onto the source before the commit. `--adw-id` re-attaches a joined run to the worktree it already owns. When it finishes, the branch is rebased and ready — nothing was pushed:
+
+```bash
+just worktrees                          # every worktree and its branch
+git -C .worktrees/sssf-<adw_id> push -u origin sssf/<adw_id>
+gh pr create --base <source> --head sssf/<adw_id>
 ```
 
 The prompt is inline text or a file path. Launch in the background so you can poll while it works; the `adw_id` is printed on startup — capture it, everything else keys off it.

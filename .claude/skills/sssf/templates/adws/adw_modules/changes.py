@@ -21,27 +21,27 @@ from .data_types import BaseRef, ChangeCapture, ChangeSet, ChangesOutput
 DIFF_FILENAME = "changes.diff"
 
 
-def resolve_base(ref: str) -> BaseRef:
+def resolve_base(ref: str, root=None) -> BaseRef:
     """Pick the commit the work is measured from, and record why that one."""
-    if not git_helper.is_repo():
+    if not git_helper.is_repo(root=root):
         raise RuntimeError(
             "not a git repository — change capture needs one. Run `git init` in "
             "the repo root before running an ADW that documents a change.")
-    if not git_helper.ref_exists(ref):
+    if not git_helper.ref_exists(ref, root=root):
         raise RuntimeError(
             f"base ref {ref!r} does not exist in this repository — pass --base "
             f"with a ref that does (e.g. --base master, --base HEAD~1).")
 
     # Built first, then given its reason: BaseRef.label knows how to print a
     # pinned sha, and the reason is the line a human reads in the trace.
-    base = BaseRef(ref=ref, commit=git_helper.merge_base(ref, "HEAD"))
-    if git_helper.short_sha(base.commit) != git_helper.short_sha("HEAD"):
+    base = BaseRef(ref=ref, commit=git_helper.merge_base(ref, "HEAD", root=root))
+    if git_helper.short_sha(base.commit, root=root) != git_helper.short_sha("HEAD", root=root):
         base.reason = (f"HEAD is ahead of {base.label} — diffing every commit since, "
                        f"plus the working tree")
-    elif git_helper.is_dirty():
+    elif git_helper.is_dirty(root=root):
         base.reason = f"HEAD is on {base.label} — diffing the uncommitted working tree"
-    elif git_helper.ref_exists("HEAD~1"):
-        base.commit = git_helper.rev("HEAD~1")
+    elif git_helper.ref_exists("HEAD~1", root=root):
+        base.commit = git_helper.rev("HEAD~1", root=root)
         base.reason = (f"HEAD is on {base.label} with a clean tree — falling back to "
                        f"the last commit")
     else:
@@ -51,13 +51,14 @@ def resolve_base(ref: str) -> BaseRef:
 
 def capture(run, params: ChangeCapture) -> ChangeSet:
     """Diff the working tree against the resolved base and persist the evidence."""
-    base = resolve_base(params.base)
-    files = git_helper.diff_files(base.commit)
-    untracked = git_helper.untracked_files() if params.include_untracked else []
-    insertions, deletions = git_helper.diff_counts(base.commit)
-    stat = git_helper.diff_stat(base.commit)
+    root = run.repo_root  # the run's worktree when isolated, else the checkout
+    base = resolve_base(params.base, root=root)
+    files = git_helper.diff_files(base.commit, root=root)
+    untracked = git_helper.untracked_files(root=root) if params.include_untracked else []
+    insertions, deletions = git_helper.diff_counts(base.commit, root=root)
+    stat = git_helper.diff_stat(base.commit, root=root)
 
-    text = git_helper.diff_text(base.commit)
+    text = git_helper.diff_text(base.commit, root=root)
     lines = text.splitlines()
     truncated = len(lines) > params.max_diff_lines
     if truncated:
@@ -72,7 +73,7 @@ def capture(run, params: ChangeCapture) -> ChangeSet:
                        else "  (none)")
     diff_path = run.context_handoff_dir / DIFF_FILENAME
     diff_path.write_text(
-        f"# changes since {base.label} @ {git_helper.short_sha(base.commit)}\n"
+        f"# changes since {base.label} @ {git_helper.short_sha(base.commit, root=root)}\n"
         f"# {base.reason}\n"
         f"# +{insertions} -{deletions} across {len(files)} tracked file(s)\n\n"
         f"## stat\n{stat or '  (no tracked changes)'}\n\n"
@@ -84,7 +85,7 @@ def capture(run, params: ChangeCapture) -> ChangeSet:
                      diff_path=str(diff_path), truncated=truncated)
 
 
-def as_envelope(changes: ChangeSet, notes: str = "") -> ChangesOutput:
+def as_envelope(changes: ChangeSet, notes: str = "", root=None) -> ChangesOutput:
     """Wrap a captured change so an agent can be handed it directly."""
     total = len(changes.files) + len(changes.untracked)
     return ChangesOutput(
@@ -93,7 +94,7 @@ def as_envelope(changes: ChangeSet, notes: str = "") -> ChangesOutput:
                  f"(+{changes.insertions} -{changes.deletions})"),
         artifacts=[changes.diff_path],
         notes_for_next_agent=notes,
-        base=f"{changes.base.label} @ {git_helper.short_sha(changes.base.commit)} "
+        base=f"{changes.base.label} @ {git_helper.short_sha(changes.base.commit, root=root)} "
              f"— {changes.base.reason}",
         changed_files=changes.files + changes.untracked,
         insertions=changes.insertions,
