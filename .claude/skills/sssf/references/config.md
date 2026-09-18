@@ -188,6 +188,10 @@ work must not depend on a gitignore line someone can delete.
 
 Narrow by role, not by reflex. Anything that must produce a `context_handoff/` artifact needs `write`, or it will resort to a `bash` heredoc. Withhold `edit`/`write` only where the restriction *is* the guarantee — a reviewer that cannot edit cannot quietly fix what it was asked to report.
 
+### Read scope — other runs' session dirs are off-limits
+
+`writes` bounds what an agent may change; reading is deliberately unbounded — an agent must read the repo freely to do its job. One exception is stated, not enforced: session directories of *other* runs (`{data_dir}/sessions/<another-adw-id>/`). They sit inside the repo tree, recon tools trip over them, and their stale envelopes contaminate the current run. Every agent call carries the boundary in its system text (`agents.boundary_text`: the repo root, its own session dir, and the prohibition) — central, so it holds no matter what the agent's prompt files say. Reads cannot be enforced post-hoc the way writes are (a change-set snapshot cannot see a read, and the agent is a CLI subprocess on the same filesystem), so the trace is the backstop: every tool call lands in `sssf.db` with its exact args, and the operator can audit what was actually opened.
+
 ### Extension tools must be named explicitly
 
 `pi --tools` is an allowlist over **built-in, extension, and custom tools alike** — not just builtins. So the moment an agent has a `tools` list at all (its own, or one inherited from `defaults`), any tool registered by its `harness_engineering` extensions is **excluded unless it appears in that list by name**.
