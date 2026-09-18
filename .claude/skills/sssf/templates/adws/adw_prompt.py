@@ -17,7 +17,7 @@ tree. This workflow never commits, rebases, or pushes.
 import argparse
 import sys
 
-from adw_modules import agents, git_helper, session, utils, worktree
+from adw_modules import agents, session, utils, worktree
 from adw_modules.data_types import (AgentCall, GenericOutput, IsolationRequest,
                                     PhaseParams)
 
@@ -39,16 +39,18 @@ def main(prompt: str, agent: str = "builder",
         # A read-only agent has nothing to isolate — unless the engineer asked
         # for a worktree explicitly, it runs in place and `just demo` stays clean.
         read_only = agents.resolve(cfg, agent).writes == []
-        info = worktree.ensure(run, IsolationRequest(
-            source_branch=source_branch,
-            disable=no_worktree or (read_only and source_branch is None)))
-        if info is None:
-            ph.log(mode="in-place", root=str(run.repo_root))
+        if no_worktree:
+            reason = "--no-worktree passed"
+        elif read_only and source_branch is None:
+            reason = "read-only agent, nothing to isolate"
         else:
-            ph.log(branch=info.branch, worktree=info.worktree_path,
-                   source=f"{info.source_branch} ({info.onto_ref})",
-                   base=git_helper.short_sha(info.base_commit, root=run.repo_root),
-                   reused=info.reused, recreated=info.recreated)
+            reason = ""
+        request = IsolationRequest(
+            source_branch=source_branch,
+            disable=no_worktree or (read_only and source_branch is None),
+            reason=reason)
+        info = worktree.ensure(run, request)
+        worktree.log_result(ph, run, info, request)
 
     with run.phase(PhaseParams(name="prompt", kind="agent", owner=agent,
                                description=f"Send the request straight to {agent} and parse its envelope")) as ph:
