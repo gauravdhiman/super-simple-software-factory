@@ -61,6 +61,19 @@ def resolve_data_root(data_dir: str | Path) -> Path:
     return p if p.is_absolute() else (Path.cwd() / p).resolve()
 
 
+def repo_path(repo_root, value: str | Path) -> Path:
+    """Anchor a repo-relative path at the run's worktree.
+
+    Agents report paths relative to where they worked (`run.repo_root`); in an
+    isolated run that is the worktree, not the process cwd. Absolute paths pass
+    through untouched; a missing root keeps the old behaviour.
+    """
+    p = Path(value)
+    if p.is_absolute():
+        return p
+    return (Path(repo_root) / p) if repo_root else p
+
+
 def resolve_prompt(arg: str) -> str:
     """CLI prompt arg: a file path resolves to its contents, else inline text."""
     try:

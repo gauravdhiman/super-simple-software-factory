@@ -7,7 +7,7 @@
 Usage:
     uv run adws/adw_plan.py "<prompt or path/to/prompt.md>" [--config adws/adw_sssf_config/sssf.config.yaml] [--adw-id a1b2c3d4] [--source-branch main] [--no-worktree] [--cleanup]
 
-Phases: engineer(request) -> git(isolate) -> planner
+Phases: engineer(request) -> git(isolate) -> planner -> handoff(seal_plan)
 
 The plan is written in the run's own worktree on branch sssf/<adw_id> and left
 uncommitted there — this workflow never commits, rebases, or pushes, so the
@@ -17,7 +17,7 @@ spec stays where the engineer can read it.
 import argparse
 import sys
 
-from adw_modules import agents, gates, git_helper, session, utils, worktree
+from adw_modules import agents, gates, git_helper, handoff, session, utils, worktree
 from adw_modules.data_types import (AgentCall, IsolationRequest, PhaseParams,
                                     PlanOutput)
 
@@ -48,10 +48,15 @@ def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw
 
     with run.phase(PhaseParams(name="plan", kind="agent", owner="planner",
                                description="Turn the request into an implementable plan")) as ph:
-        ph.call(AgentCall(output_type=PlanOutput, prompt=prompt,
-                          gates=[gates.artifacts_exist, gates.files_non_empty,
-                                 gates.plan_declares_artifacts, gates.plan_summary_present,
-                                 gates.plan_handoff_present]))
+        plan = ph.call(AgentCall(output_type=PlanOutput, prompt=prompt,
+                                 gates=[gates.artifacts_exist, gates.files_non_empty,
+                                        gates.plan_declares_artifacts, gates.plan_summary_present,
+                                        gates.plan_handoff_present]))
+
+    with run.phase(PhaseParams(name="seal_plan", kind="code", owner="handoff",
+                               description="Fingerprint the plan so a later build provably implements this exact spec")) as ph:
+        seal = handoff.seal_artifacts(run, "plan", plan.artifacts)
+        ph.log(label=seal.label, files=len(seal.files), digest=handoff.digest_of(seal))
 
     code = run.finish()
     if code == 0:

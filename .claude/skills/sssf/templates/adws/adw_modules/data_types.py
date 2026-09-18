@@ -394,6 +394,23 @@ class RebaseResult(BaseModel):
     to_commit: str = ""
 
 
+# ── Sealed handoffs (the build proves it implements the reviewed plan) ──────
+
+class HandoffSeal(BaseModel):
+    """Fingerprints of handoff artifacts at seal time.
+
+    Keys are repo-relative posix paths when the file lives under the run's
+    worktree, absolute otherwise — so a seal resolves no matter which
+    checkout a later joined run works from. The bytes behind every key must
+    be identical at verify time, or the build refuses to start.
+    """
+
+    label: str                        # e.g. "plan"
+    adw_id: str = ""
+    files: dict[str, str] = Field(default_factory=dict)   # path -> sha256 hex
+    sealed_at: str = ""
+
+
 class SSSFConfig(BaseModel):
     defaults: ConfigDefaults = Field(default_factory=ConfigDefaults)
     observability: ObservabilityConfig = Field(default_factory=ObservabilityConfig)

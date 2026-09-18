@@ -7,7 +7,7 @@
 Usage:
     uv run adws/adw_plan_build.py "<prompt or path/to/prompt.md>" [--config adws/adw_sssf_config/sssf.config.yaml] [--adw-id a1b2c3d4] [--source-branch main] [--no-worktree] [--cleanup]
 
-Phases: engineer(request) -> git(isolate) -> planner -> builder -> git(rebase) -> git(commit)
+Phases: engineer(request) -> git(isolate) -> planner -> handoff(seal_plan) -> handoff(verify_handoff) -> builder -> git(rebase) -> git(commit)
 
 The run is isolated in its own worktree on branch sssf/<adw_id>, cut from the
 source branch. After the build, the branch is rebased onto the latest source
@@ -18,7 +18,7 @@ when ready. Nothing is pushed automatically.
 import argparse
 import sys
 
-from adw_modules import agents, gates, git_helper, session, utils, worktree
+from adw_modules import agents, gates, git_helper, handoff, session, utils, worktree
 from adw_modules.data_types import (AgentCall, BuildOutput, IsolationRequest,
                                     PhaseParams, PlanOutput)
 
@@ -53,6 +53,16 @@ def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw
                                  gates=[gates.artifacts_exist, gates.files_non_empty,
                                         gates.plan_declares_artifacts, gates.plan_summary_present,
                                         gates.plan_handoff_present]))
+
+    with run.phase(PhaseParams(name="seal_plan", kind="code", owner="handoff",
+                               description="Fingerprint the plan so the build provably implements this exact spec")) as ph:
+        seal = handoff.seal_artifacts(run, "plan", plan.artifacts)
+        ph.log(label=seal.label, files=len(seal.files), digest=handoff.digest_of(seal))
+
+    with run.phase(PhaseParams(name="verify_handoff", kind="code", owner="handoff",
+                               description="Refuse to build when the plan changed since it was fingerprinted")) as ph:
+        checked = handoff.verify_artifacts(run, "plan")
+        ph.log(label=checked.label, files=len(checked.files), digest=handoff.digest_of(checked))
 
     with run.phase(PhaseParams(name="build", kind="agent", owner="builder",
                                description="Implement the plan exactly")) as ph:

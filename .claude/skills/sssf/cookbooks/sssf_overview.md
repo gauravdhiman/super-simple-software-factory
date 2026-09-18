@@ -28,6 +28,7 @@ adws/
 │   ├── agent_pi.py              Pi interface (v1)   ·   agent_cc.py  Claude Code (v2, stubbed)
 │   ├── gates.py                 gate(envelope, run) -> GateReport — one check per item verified
 │   ├── changes.py               git diff vs a resolved base → ChangeSet → envelope for the documenter
+│   ├── handoff.py               fingerprint handoff artifacts at seal time; refuse to build from drifted bytes
 │   ├── worktree.py              one git worktree + branch per run → rebase onto source, ready to push
 │   ├── prompts.py, session.py, tracer.py, console.py, git_helper.py, utils.py
 └── adw_data/

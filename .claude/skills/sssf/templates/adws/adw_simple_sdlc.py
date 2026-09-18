@@ -7,8 +7,8 @@
 Usage:
     uv run adws/adw_simple_sdlc.py "<prompt or path/to/prompt.md>" [--config adws/adw_sssf_config/sssf.config.yaml] [--adw-id a1b2c3d4] [--source-branch main] [--no-worktree] [--cleanup]
 
-Phases: engineer(request) -> git(isolate) -> planner -> git(commit_plan)
-        -> builder -> code(test) [-> builder(fix) -> code(test) ... bounded]
+Phases: engineer(request) -> git(isolate) -> planner -> handoff(seal_plan) -> git(commit_plan)
+        -> handoff(verify_handoff) -> builder -> code(test) [-> builder(fix) -> code(test) ... bounded]
         -> reviewer [-> builder(revise) -> reviewer ... bounded]
         -> code(retest, only if a revision changed code)
         -> git(rebase) -> git(commit_build) -> code(changes) -> documenter -> git(commit_docs)
@@ -49,7 +49,7 @@ baseline is pinned right after isolation and printed in the isolate phase.
 import argparse
 import sys
 
-from adw_modules import agents, changes, gates, git_helper, quality, session, utils, worktree
+from adw_modules import agents, changes, gates, git_helper, handoff, quality, session, utils, worktree
 from adw_modules.data_types import (AgentCall, BuildOutput, ChangeCapture,
                                     DocumentOutput, IsolationRequest,
                                     PhaseParams, PlanOutput, ReviewOutput)
@@ -104,9 +104,19 @@ def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw
                                         gates.plan_declares_artifacts, gates.plan_summary_present,
                                         gates.plan_handoff_present]))
 
+    with run.phase(PhaseParams(name="seal_plan", kind="code", owner="handoff",
+                               description="Fingerprint the plan so the build provably implements this exact spec")) as ph:
+        seal = handoff.seal_artifacts(run, "plan", plan.artifacts)
+        ph.log(label=seal.label, files=len(seal.files), digest=handoff.digest_of(seal))
+
     with run.phase(PhaseParams(name="commit_plan", kind="code", owner="git",
                                description="Put the spec on record before any code exists to blur it")) as ph:
         commit(ph, plan)
+
+    with run.phase(PhaseParams(name="verify_handoff", kind="code", owner="handoff",
+                               description="Refuse to build when the plan changed since it was fingerprinted")) as ph:
+        checked = handoff.verify_artifacts(run, "plan")
+        ph.log(label=checked.label, files=len(checked.files), digest=handoff.digest_of(checked))
 
     with run.phase(PhaseParams(name="build", kind="agent", owner="builder",
                                description="Implement the plan exactly")) as ph:
