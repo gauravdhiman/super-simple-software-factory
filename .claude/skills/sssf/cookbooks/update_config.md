@@ -36,6 +36,14 @@ Thinking levels are Pi's reasoning effort: `off | minimal | low | medium | high 
 
 Four OpenCode specifics: model ids pass through opaquely like Muse, but write them as `provider/model`; thinking passes straight through `--variant` (provider-specific, unknown values ignored) except `off`, which drops the flag and keeps the provider default; there is no tools allowlist, so a `tools:` list is accepted and ignored — the agent runs as opencode's `build` agent with `--auto` (asks approved, explicit denies hold), and the repo boundary stays enforced post-hoc by `permissions.py`; usage/cost are real, parsed from the stream's `step_finish` events. `OPENCODE_PATH` overrides the binary when it is not on PATH.
 
+```yaml
+  - name: builder
+    coding_agent: codex
+    model: gpt-5.6-luna
+```
+
+Four Codex specifics: model ids pass through opaquely (non-empty is the only check — codex names its own models, e.g. `gpt-5.6-luna`); thinking maps onto codex's effort vocabulary (`off` → `none`, `minimal` → `low`, anything unrecognized → `medium`) because codex fails unknown values instead of ignoring them; there is no tools allowlist, so a `tools:` list is accepted and ignored — the agent runs with `-s workspace-write` (the default observed is read-only, under which builders cannot write) and `-c approval_policy=never` (asks never block headless runs; explicit deny rules still hold, the sandbox stays on, `--dangerously-bypass` is never used), and the repo boundary stays enforced post-hoc by `permissions.py`; usage is real, parsed from `turn.completed`, while cost reads zero because the stream carries none. `CODEX_PATH` overrides the binary when it is not on PATH. `--skip-git-repo-check` is always passed so in-place runs work outside git repos.
+
 ## Recolor an agent's lane
 
 ```yaml

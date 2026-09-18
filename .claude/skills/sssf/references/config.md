@@ -42,12 +42,12 @@ agents:
 
 | Field | Type | Meaning |
 |---|---|---|
-| `coding_agent` | `pi` \| `claude_code` \| `opencode` \| `codex` \| `muse` \| `omp` | Which interface runs the agent. `pi`, `muse`, and `opencode` are implemented; every other value is schema-valid and resolves through `harness.py`, failing validation with a clear reason until its `agent_<name>.py` adapter lands. Auth is never the factory's business — each CLI uses whatever the operator configured (subscription or keys). |
+| `coding_agent` | `pi` \| `claude_code` \| `opencode` \| `codex` \| `muse` \| `omp` | Which interface runs the agent. `pi`, `muse`, `opencode`, and `codex` are implemented; every other value is schema-valid and resolves through `harness.py`, failing validation with a clear reason until its `agent_<name>.py` adapter lands. Auth is never the factory's business — each CLI uses whatever the operator configured (subscription or keys). |
 | `model` | string | Model id. For Pi, any id registered in `~/.pi/agent/models.json`. Default `gemini-3.6-flash`. |
 | `thinking` | enum | Reasoning effort — see below. Default `medium`. |
 | `color` | hex string | Lane color for every agent that does not set its own. Default empty — the visualizer falls back to its own palette. |
 | `harness_engineering` | list[string] | Coding-agent extensions. Pi: extension names. Claude Code: reserved (MCP, hooks). |
-| `tools` | list[string] | Roster-wide tool allowlist. Every agent that omits its own `tools` inherits this. Unset = all tools usable. Pi-only: Muse and OpenCode have no allowlist flag, so `tools` is accepted and ignored there — OpenCode runs as its `build` agent with `--auto`, and the repo boundary stays enforced post-hoc by `permissions.py` on every harness. |
+| `tools` | list[string] | Roster-wide tool allowlist. Every agent that omits its own `tools` inherits this. Unset = all tools usable. Pi-only: Muse, OpenCode, and Codex have no allowlist flag, so `tools` is accepted and ignored there — OpenCode runs as its `build` agent with `--auto`, Codex with `-s workspace-write` plus `approval_policy=never`, and the repo boundary stays enforced post-hoc by `permissions.py` on every harness. |
 | `protected_files` | list[string] | Paths **no** agent may modify unless it names them in its own `writes`. Default: `adws/adw_modules/`, `adws/adw_sssf_config/`, `adws/adw_*.py` — an agent must not be able to edit the machinery that decides whether its work passed. |
 | `data_dir` | path | Runtime home. Sessions land at `{data_dir}/sessions/{adw_id}/{agent_name}/`. Default `adws/adw_data`. |
 
@@ -99,11 +99,11 @@ Pi's reasoning-effort ladder, lowest to highest:
 off | minimal | low | medium | high | xhigh | max
 ```
 
-Mapped to Pi's reasoning effort control and honored when the model is registered with `reasoning: true` in `~/.pi/agent/models.json`. On a non-reasoning model the setting is inert — no error, no effect. Rough guidance: `high`/`xhigh` for planners and reviewers, `medium` for builders, `low` for mechanical read-and-report agents. (For Claude Code in v2, the same field maps to the thinking budget.) On Muse the ladder maps with `off` → `none`. On OpenCode it passes straight through `--variant` — variants are provider-specific and unknown values are ignored, so every rung is sent verbatim except `off`, which drops the flag and keeps the provider default.
+Mapped to Pi's reasoning effort control and honored when the model is registered with `reasoning: true` in `~/.pi/agent/models.json`. On a non-reasoning model the setting is inert — no error, no effect. Rough guidance: `high`/`xhigh` for planners and reviewers, `medium` for builders, `low` for mechanical read-and-report agents. (For Claude Code in v2, the same field maps to the thinking budget.) On Muse the ladder maps with `off` → `none`. On OpenCode it passes straight through `--variant` — variants are provider-specific and unknown values are ignored, so every rung is sent verbatim except `off`, which drops the flag and keeps the provider default. On Codex it maps onto codex's effort vocabulary (`off` → `none`, `minimal` → `low`, unrecognized → `medium`) via `-c model_reasoning_effort=` — codex fails unknown values with a 400 instead of ignoring them, so nothing is ever passed through verbatim.
 
 ## Model resolution
 
-**Always write `model` as `provider/model-id`.** On Pi, `agents.py` hands the string to the Pi interface, which resolves it against pi's merged catalog — `~/.pi/agent/models.json` plus pi's built-in providers. On Muse and OpenCode the id passes through opaquely (non-empty is the only check) and the CLI itself reports an unknown id at spawn time — `opencode models` lists the available `provider/model` ids. The same model is usually carried by more than one provider (`gemini-3.6-flash` lives under `google` *and* under `openrouter` as `google/gemini-3.6-flash`), and a bare id that matches several **raises at resolution**:
+**Always write `model` as `provider/model-id`.** On Pi, `agents.py` hands the string to the Pi interface, which resolves it against pi's merged catalog — `~/.pi/agent/models.json` plus pi's built-in providers. On Muse, OpenCode, and Codex the id passes through opaquely (non-empty is the only check) and the CLI itself reports an unknown id at spawn time — `opencode models` lists the available `provider/model` ids. The same model is usually carried by more than one provider (`gemini-3.6-flash` lives under `google` *and* under `openrouter` as `google/gemini-3.6-flash`), and a bare id that matches several **raises at resolution**:
 
 ```
 agent 'scout': model pattern 'gemini-3.6-flash' is ambiguous:
@@ -215,6 +215,6 @@ Rule: **every entry in `harness_engineering` that registers a tool must have tha
 
 ## Harness engineering
 
-`harness_engineering` entries are pi extension **file paths**, passed through as `pi -e <path>`, one flag per entry, scoped to that agent only. This is where per-agent harness changes live — e.g. an output-tightening extension for an agent that keeps wrapping its envelope in prose. The starter roster ships with none. On Muse, OpenCode, and Claude Code the field is reserved (MCP config and hooks when those adapters need it) and currently ignored.
+`harness_engineering` entries are pi extension **file paths**, passed through as `pi -e <path>`, one flag per entry, scoped to that agent only. This is where per-agent harness changes live — e.g. an output-tightening extension for an agent that keeps wrapping its envelope in prose. The starter roster ships with none. On Muse, OpenCode, Codex, and Claude Code the field is reserved (MCP config and hooks when those adapters need it) and currently ignored.
 
 **If the extension registers a tool, name that tool in the agent's `tools` list too** — `--tools` filters extension tools exactly like builtins, so an unnamed extension tool is silently unavailable no matter that the extension loaded fine. See [Extension tools must be named explicitly](#extension-tools-must-be-named-explicitly) above. Extensions that only shape output or add flags (no tool registration) need no `tools` change.

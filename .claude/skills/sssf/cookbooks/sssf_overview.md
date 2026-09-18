@@ -25,7 +25,7 @@ adws/
 │   ├── data_types.py            AgentCall, PhaseParams, Phase, Envelope + one output type per agent call
 │   ├── agents.py                load_config, validate, resolve entry → interface + model + thinking
 │   ├── runner.py                the Run object: run.phase(PhaseParams) → ph.call(AgentCall)
-│   ├── agent_pi.py              Pi interface (v1)   ·   agent_muse.py  Muse interface   ·   agent_opencode.py  OpenCode interface   ·   agent_cc.py  Claude Code (stubbed)
+│   ├── agent_pi.py              Pi interface (v1)   ·   agent_muse.py  Muse interface   ·   agent_opencode.py  OpenCode interface   ·   agent_codex.py  Codex interface   ·   agent_cc.py  Claude Code (stubbed)
 │   ├── harness.py               worker-backend contract + dispatch: one adapter per coding_agent value
 │   ├── gates.py                 gate(envelope, run) -> GateReport — one check per item verified
 │   ├── changes.py               git diff vs a resolved base → ChangeSet → envelope for the documenter
@@ -43,7 +43,7 @@ adws/
     └── sssf.db                  gitignored SQLite trace db the visualizer polls
 ```
 
-Workers run on a configured harness: `pi`, `muse`, and `opencode` implemented (`coding_agent: pi | muse | opencode`), default model `gemini-3.6-flash`, thinking `medium`. `claude_code`, `codex`, `omp` are schema-valid with adapters to come.
+Workers run on a configured harness: `pi`, `muse`, `opencode`, and `codex` implemented (`coding_agent: pi | muse | opencode | codex`), default model `gemini-3.6-flash`, thinking `medium`. `claude_code` and `omp` are schema-valid with adapters to come.
 
 ## The phase model
 
