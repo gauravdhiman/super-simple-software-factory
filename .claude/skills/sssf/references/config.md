@@ -68,6 +68,7 @@ One git worktree + branch per run, so parallel ADWs never share a tree.
 | `source_branch` | string | The ref new worktrees are cut from and rebased onto. `--source-branch` overrides it per run; with neither set, an interactive terminal is asked (default `main`), non-interactive runs take `main`. Default `main`. |
 | `worktree_dir` | path | Relative to the repo root; one dir per run (`sssf-<adw_id>`). Gitignored by `install.py`. Default `.worktrees`. |
 | `branch_prefix` | string | Branch per run is `<prefix><adw_id>`. Default `sssf/`. |
+| `cleanup_on_success` | bool | `--cleanup` without the flag: drop the checkout after a green run with a clean tree. The branch is always kept; anything uncommitted, failed, or in-place is never touched. Default `false`. |
 
 The branch is what makes a later PR trivial — push it and open the PR against the source branch. The factory never pushes on its own: no push, no `gh pr create`, no force-update, no auto-resolved conflicts. A rebase conflict aborts (commits intact) or keeps the stash (uncommitted work intact) and fails the phase with the recovery commands.
 

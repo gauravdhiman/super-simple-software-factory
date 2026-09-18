@@ -5,7 +5,7 @@
 """ADW Build Review — implement, then confirm it is what was asked for.
 
 Usage:
-    uv run adws/adw_build_review.py "<prompt or path/to/prompt.md>" [--config adws/adw_sssf_config/sssf.config.yaml] [--adw-id a1b2c3d4] [--source-branch main] [--no-worktree]
+    uv run adws/adw_build_review.py "<prompt or path/to/prompt.md>" [--config adws/adw_sssf_config/sssf.config.yaml] [--adw-id a1b2c3d4] [--source-branch main] [--no-worktree] [--cleanup]
 
 Phases: engineer(request) -> git(isolate) -> builder -> reviewer [-> builder(revise) -> reviewer ... bounded]
 
@@ -34,7 +34,8 @@ MAX_REVISION_LOOPS = 3
 
 
 def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw_id: str | None = None,
-         source_branch: str | None = None, no_worktree: bool = False) -> int:
+         source_branch: str | None = None, no_worktree: bool = False,
+         cleanup: bool = False) -> int:
     cfg = agents.load_config(config)
     agents.validate(cfg, REQUIRED_AGENTS)
     run = session.ensure(cfg, adw_id)
@@ -51,7 +52,8 @@ def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw
         else:
             ph.log(branch=info.branch, worktree=info.worktree_path,
                    source=f"{info.source_branch} ({info.onto_ref})",
-                   base=git_helper.short_sha(info.base_commit, root=run.repo_root))
+                   base=git_helper.short_sha(info.base_commit, root=run.repo_root),
+                   reused=info.reused, recreated=info.recreated)
 
     with run.phase(PhaseParams(name="build", kind="agent", owner="builder",
                                description="Implement the request")) as ph:
@@ -77,8 +79,11 @@ def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw
             previous = ph.call(AgentCall(output_type=BuildOutput, prompt=prompt, previous=review,
                                          gates=[gates.diff_matches_claims]))
 
-    return run.finish(accepted=review is not None and review.approved,
+    code = run.finish(accepted=review is not None and review.approved,
                       reason=f"the reviewer never approved after {MAX_REVISION_LOOPS} revision(s)")
+    if code == 0:
+        worktree.maybe_cleanup(run, cleanup or cfg.isolation.cleanup_on_success)
+    return code
 
 
 if __name__ == "__main__":
@@ -90,6 +95,9 @@ if __name__ == "__main__":
                         help="branch the isolated worktree is cut from (default: isolation.source_branch in config, else main)")
     parser.add_argument("--no-worktree", action="store_true",
                         help="run in the current checkout instead of an isolated worktree")
+    parser.add_argument("--cleanup", action="store_true",
+                        help="remove this run's worktree checkout on success when the tree is clean (the branch is always kept)")
     args = parser.parse_args()
     sys.exit(main(utils.resolve_prompt(args.prompt), args.config, args.adw_id,
-                  source_branch=args.source_branch, no_worktree=args.no_worktree))
+                  source_branch=args.source_branch, no_worktree=args.no_worktree,
+                  cleanup=args.cleanup))

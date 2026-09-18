@@ -21,6 +21,7 @@ commands, so nothing the agents built can be silently lost.
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -101,7 +102,10 @@ def ensure(run, request: IsolationRequest) -> IsolationInfo | None:
             "isolation needs a git repository — run `git init` with a first commit, "
             "or pass --no-worktree to run in place.")
 
-    # A joined run (--adw-id) re-attaches to the worktree it already owns.
+    # A joined run (--adw-id) re-attaches to the worktree it already owns. When
+    # the checkout is gone (gc, --cleanup, or a hand) but the branch lives on,
+    # re-attach a fresh checkout at the recorded path instead of dead-ending:
+    # that is what a follow-up run under the same id obviously wants.
     record = _read_record(run)
     if record is not None:
         path = Path(record.worktree_path)
@@ -109,6 +113,16 @@ def ensure(run, request: IsolationRequest) -> IsolationInfo | None:
         if branch == record.branch and git_helper.ref_exists(record.branch, root=outer):
             run.repo_root = path
             run.isolation = record.model_copy(update={"reused": True})
+            return run.isolation
+        if git_helper.ref_exists(record.branch, root=outer):
+            if path.exists() or _registered_branch(outer, path) is not None:
+                raise RuntimeError(
+                    f"run {run.adw_id} owns branch {record.branch}, but {path} is occupied "
+                    f"by something else — clear it (`git worktree remove --force {path}`) "
+                    f"or start a fresh --adw-id.")
+            git_helper.attach_worktree(path, record.branch, root=outer)
+            run.repo_root = path.resolve()
+            run.isolation = record.model_copy(update={"reused": True, "recreated": True})
             return run.isolation
         raise RuntimeError(
             f"run {run.adw_id} previously isolated onto {record.branch} at {record.worktree_path}, "
@@ -214,3 +228,49 @@ def push_hint(record: IsolationInfo) -> str:
     the factory never pushes on its own."""
     return (f"git -C {record.worktree_path} push -u {REMOTE} {record.branch} && "
             f"gh pr create --base {record.source_branch} --head {record.branch}")
+
+
+def maybe_cleanup(run, requested: bool) -> str:
+    """Remove this run's worktree checkout when that is provably safe.
+
+    Opt-in only (`--cleanup` or `isolation.cleanup_on_success`), and only when
+    the tree is clean — every committed bit lives on in the branch, which is
+    NEVER deleted here. Anything else (not requested, in-place run, dirty
+    tree) keeps the checkout and says why. Never raises: cleanup must not fail
+    a run whose work is already done.
+    """
+    record = getattr(run, "isolation", None)
+    if not requested:
+        return "off"
+    if record is None:
+        return "in-place"
+    root = Path(run.repo_root)
+    try:
+        if git_helper.changed_files(root=root):
+            run.console.note(f"cleanup: keeping {record.branch} — uncommitted work stays reviewable")
+            return "kept-dirty"
+        ok, err = _remove_checkout(record)
+        if not ok:
+            run.console.note(f"cleanup: keeping {record.branch} — could not remove checkout ({err})")
+            return f"remove-failed: {err}"
+    except Exception as error:                       # cleanup never fails the run
+        run.console.note(f"cleanup: keeping {record.branch} — {error}")
+        return f"remove-failed: {error}"
+    run.console.note(f"cleanup: removed checkout for {record.branch} — branch kept; {push_hint(record)}")
+    return "removed"
+
+
+def _remove_checkout(record: IsolationInfo) -> tuple[bool, str]:
+    """Unregister the worktree, run from the main checkout (never from inside
+    the tree being removed). The branch and its commits are untouched."""
+    wt = Path(record.worktree_path)
+    common = subprocess.run(["git", "rev-parse", "--git-common-dir"],
+                            cwd=str(wt), capture_output=True, text=True)
+    if common.returncode != 0:
+        return False, common.stderr.strip()
+    outer = str(Path(common.stdout.strip()).parent)
+    result = subprocess.run(["git", "worktree", "remove", record.worktree_path],
+                            cwd=outer, capture_output=True, text=True)
+    if result.returncode != 0:
+        return False, result.stderr.strip()
+    return True, ""

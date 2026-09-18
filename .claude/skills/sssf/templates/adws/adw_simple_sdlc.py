@@ -5,7 +5,7 @@
 """ADW Simple SDLC — plan, build, test, review, document, committing as it goes.
 
 Usage:
-    uv run adws/adw_simple_sdlc.py "<prompt or path/to/prompt.md>" [--config adws/adw_sssf_config/sssf.config.yaml] [--adw-id a1b2c3d4] [--source-branch main] [--no-worktree]
+    uv run adws/adw_simple_sdlc.py "<prompt or path/to/prompt.md>" [--config adws/adw_sssf_config/sssf.config.yaml] [--adw-id a1b2c3d4] [--source-branch main] [--no-worktree] [--cleanup]
 
 Phases: engineer(request) -> git(isolate) -> planner -> git(commit_plan)
         -> builder -> code(test) [-> builder(fix) -> code(test) ... bounded]
@@ -64,7 +64,8 @@ DOCUMENT_NOTES = ("Read diff_path in full before writing. Document only what the
 
 
 def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw_id: str | None = None,
-         source_branch: str | None = None, no_worktree: bool = False) -> int:
+         source_branch: str | None = None, no_worktree: bool = False,
+         cleanup: bool = False) -> int:
     cfg = agents.load_config(config)
     agents.validate(cfg, REQUIRED_AGENTS)
     run = session.ensure(cfg, adw_id)
@@ -92,7 +93,8 @@ def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw
         else:
             ph.log(branch=info.branch, worktree=info.worktree_path,
                    source=f"{info.source_branch} ({info.onto_ref})",
-                   base=git_helper.short_sha(info.base_commit, root=run.repo_root))
+                   base=git_helper.short_sha(info.base_commit, root=run.repo_root),
+                   reused=info.reused, recreated=info.recreated)
     baseline = git_helper.rev("HEAD", root=run.repo_root)  # pinned after isolation, before this run commits anything
 
     with run.phase(PhaseParams(name="plan", kind="agent", owner="planner",
@@ -193,8 +195,11 @@ def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw
                                    description="Ship the write-up in its own commit, beside the code it describes")) as ph:
             commit(ph, document)
 
-    return run.finish(accepted=verified,
+    code = run.finish(accepted=verified,
                       reason="the suite or the review never came back clean")
+    if code == 0:
+        worktree.maybe_cleanup(run, cleanup or cfg.isolation.cleanup_on_success)
+    return code
 
 
 if __name__ == "__main__":
@@ -206,6 +211,9 @@ if __name__ == "__main__":
                         help="branch the isolated worktree is cut from (default: isolation.source_branch in config, else main)")
     parser.add_argument("--no-worktree", action="store_true",
                         help="run in the current checkout instead of an isolated worktree")
+    parser.add_argument("--cleanup", action="store_true",
+                        help="remove this run's worktree checkout on success when the tree is clean (the branch is always kept)")
     args = parser.parse_args()
     sys.exit(main(utils.resolve_prompt(args.prompt), args.config, args.adw_id,
-                  source_branch=args.source_branch, no_worktree=args.no_worktree))
+                  source_branch=args.source_branch, no_worktree=args.no_worktree,
+                  cleanup=args.cleanup))
