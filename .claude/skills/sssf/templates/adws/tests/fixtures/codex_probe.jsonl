@@ -1,0 +1,6 @@
+{"type":"thread.started","thread_id":"01a0b680-50e4-7ae3-b638-fdb4421defa3"}
+{"type":"turn.started"}
+{"type":"item.started","item":{"id":"item_0","type":"command_execution","command":"/bin/zsh -lc 'echo tool-probe-hi'","aggregated_output":"","exit_code":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_0","type":"command_execution","command":"/bin/zsh -lc 'echo tool-probe-hi'","aggregated_output":"tool-probe-hi\n","exit_code":0,"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"tool-probe-hi"}}
+{"type":"turn.completed","usage":{"input_tokens":47567,"cached_input_tokens":40192,"cache_write_input_tokens":0,"output_tokens":162,"reasoning_output_tokens":44}}
