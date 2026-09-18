@@ -24,6 +24,7 @@ Extend `adws/adw_modules/` with new low-level logic.
 | `console.py` | the terminal narrative — every line printed also lands in the db as a `log` event, so the UI reads the same story; plain sequential lines, no spinners |
 | `console.py` | the rich stdout reporter — every line printed is ALSO traced as a `log` event (`{message, level}`) so the terminal and the swim-lane UI tell the same story |
 | `git_helper.py` | branch, status, diff, commit, worktree, rebase — the raw plumbing `changes.py` and `worktree.py` compose. Every helper takes an optional `root` (the run's worktree); omitted it is the process cwd |
+| `tools/gc_worktrees.py` | operator-side reclaimer (stdlib only, not imported by ADWs): classify finished runs' worktrees, delete only with `--apply`; never touches branches, live runs, young trees, or uncommitted work |
 | `utils.py` | safe subprocess env, logging, `resolve_prompt` |
 
 ## Never `print()`
@@ -98,4 +99,4 @@ Reusable gates live in `gates.py`; genuine one-offs can be defined inline at the
 
 ## Before you finish
 
-Run the smoke ADW — `uv run adws/adw_prompt.py "ping"` — since every module change rides the same path a real run does.
+Run the smoke ADW — `uv run adws/adw_prompt.py "ping"` — since every module change rides the same path a real run does. Then `just test`: the pytest suite covers isolation, rebase, gates, and quality attribution with git fixtures only (no agents, no keys) — add a test beside every new behavior the way `tests/test_rebase.py` does for the rebase strategies.

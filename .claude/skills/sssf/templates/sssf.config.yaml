@@ -41,6 +41,9 @@ isolation:
   source_branch: main              # the ref new worktrees are cut from; --source-branch wins per run
   worktree_dir: .worktrees         # relative to the repo root; gitignored, one dir per run
   branch_prefix: sssf/             # branch per run: sssf/<adw_id> — push it and open a PR when ready
+  cleanup_on_success: false        # --cleanup without the flag: drop the checkout after a green
+                                   # run with a clean tree. The branch is always kept; anything
+                                   # uncommitted, failed, or in-place is never touched.
 
 agents:
   - name: planner

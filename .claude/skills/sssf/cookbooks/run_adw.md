@@ -32,6 +32,15 @@ git -C .worktrees/sssf-<adw_id> push -u origin sssf/<adw_id>
 gh pr create --base <source> --head sssf/<adw_id>
 ```
 
+Finished runs leave their checkout behind — the branch stays, it is the PR vehicle. Reclaim the directories without touching branches, live runs, young trees, or uncommitted work:
+
+```bash
+just gc                                 # dry run
+python3 adws/tools/gc_worktrees.py --apply
+```
+
+Or let a run clean up after itself: `--cleanup` (or `isolation.cleanup_on_success: true`) removes the checkout at the end of a **green** run with a **clean** tree — the branch is always kept for the push + PR. Anything else (failed, dirty, in-place) keeps the checkout and says why. Deletion is strictly opt-in; the default stays exactly as above.
+
 The prompt is inline text or a file path. Launch in the background so you can poll while it works; the `adw_id` is printed on startup — capture it, everything else keys off it.
 
 ### Listen for the roster

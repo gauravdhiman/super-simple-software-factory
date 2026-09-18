@@ -24,7 +24,7 @@ Answer four questions, in order:
 
 2. **Where does code act?** Git branch/commit, migrations, deploys each get their own `kind="code"` phase — never buried inside an agent phase.
 
-   **Running the suite is one of these — there is no tester agent.** The command is written down in `quality.py`, so a `kind="code"` phase runs it (`quality.run_tests(run)` → `quality.as_envelope(result, "tests")` back into the builder) and the bounded repair loop is unchanged. An agent rediscovering `bun test` on every run buys nothing a subprocess does not already know. Capturing what changed is one of these: `changes.capture(run, ChangeCapture(base="main"))` diffs the working tree against a resolved base, writes `context_handoff/changes.diff`, and `changes.as_envelope(...)` hands it to the next agent. A diff is two git commands, not a judgement call.
+   **Running the suite is one of these — there is no tester agent.** The command is written down in `quality.py`, so a `kind="code"` phase runs it (`quality.run_tests(run, ph.phase)` → `quality.as_envelope(result, "tests")` back into the builder) and the bounded repair loop is unchanged. The phase is passed explicitly so the check's evidence lands under the phase running it, never whatever happens to be last. An agent rediscovering `bun test` on every run buys nothing a subprocess does not already know. Capturing what changed is one of these: `changes.capture(run, ChangeCapture(base="main"))` diffs the working tree against a resolved base, writes `context_handoff/changes.diff`, and `changes.as_envelope(...)` hands it to the next agent. A diff is two git commands, not a judgement call.
 
 3. **Does anything loop?** Test-fix cycles are bounded fix loops (see `update_adw.md`), not phase retries.
 

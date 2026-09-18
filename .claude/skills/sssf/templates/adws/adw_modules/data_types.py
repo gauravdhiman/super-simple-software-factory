@@ -358,6 +358,9 @@ class IsolationConfig(BaseModel):
     source_branch: str = "main"       # the ref `--source-branch` overrides per run
     worktree_dir: str = ".worktrees"  # relative to the repo root; gitignored
     branch_prefix: str = "sssf/"      # branch per run: sssf/<adw_id>
+    cleanup_on_success: bool = False  # remove the checkout after a green run with a clean
+                                      # tree. Opt-in only: the branch is always kept, and
+                                      # anything uncommitted, failed, or in-place is never touched.
 
 
 class IsolationRequest(BaseModel):
@@ -377,6 +380,7 @@ class IsolationInfo(BaseModel):
     onto_ref: str                     # what the branch was cut / rebased onto
     base_commit: str                  # full sha of onto_ref at creation
     reused: bool = False              # True when a joined run re-attached
+    recreated: bool = False           # True when the checkout was gone and rebuilt from the branch
 
 
 class RebaseResult(BaseModel):
