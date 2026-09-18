@@ -66,7 +66,7 @@ MAX_FIX_LOOPS = 3
     for i in range(1, MAX_FIX_LOOPS + 1):
         with run.phase(PhaseParams(name=f"test_{i}", kind="code", owner="quality",
                                    description="Run the suite — a known command, so code runs it")) as ph:
-            test = quality.run_tests(run)          # QualityResult, not an envelope
+            test = quality.run_tests(run, ph.phase)  # QualityResult, not an envelope
             ph.log(passed=test.passed, artifacts=", ".join(test.artifacts))
 
         if test.passed:

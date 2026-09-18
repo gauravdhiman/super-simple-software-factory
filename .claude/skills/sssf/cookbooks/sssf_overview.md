@@ -19,6 +19,8 @@ adws/
 ├── adw_build_review.py          build → review: is this what was asked for? (not testing)
 ├── adw_document.py              write up the work just done, from git diff vs main
 ├── adw_simple_sdlc.py           plan → build → test → review → document; commits each product
+├── tests/                       pytest suite for the factory itself — git fixtures only, no agents or keys
+├── tools/gc_worktrees.py        reclaim finished runs' checkouts, keeping every branch (dry run unless --apply)
 ├── adw_modules/                 ALL low-level logic — ADW scripts stay thin
 │   ├── data_types.py            AgentCall, PhaseParams, Phase, Envelope + one output type per agent call
 │   ├── agents.py                load_config, validate, resolve entry → interface + model + thinking

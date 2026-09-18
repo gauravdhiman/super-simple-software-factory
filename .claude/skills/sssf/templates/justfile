@@ -88,6 +88,18 @@ worktrees:
 worktree-prune:
     @git worktree prune -v
 
+# reclaim finished runs' checkouts, keeping every branch (dry run; --apply deletes)
+gc *ARGS:
+    python3 adws/tools/gc_worktrees.py "$@"
+
+# ── factory self-tests ──────────────────────────────────────────────────
+# The suite covers isolation, rebase, gates, and quality attribution with
+# git fixtures only — no agents, no API keys.
+
+# run the factory's own tests
+test:
+    uv run --with pydantic --with pyyaml --with rich --with python-dotenv --with pytest python -m pytest adws/tests/ -q
+
 # what a run has alive right now, with pids: just procs <adw_id>
 procs ADW_ID:
     @sqlite3 {{db}} "select kind, name, pid, command, started_at from processes where adw_id='{{ADW_ID}}' and ended_at is null order by id;"

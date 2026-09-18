@@ -36,7 +36,7 @@ import time
 from pathlib import Path
 from typing import Callable
 
-from .data_types import (EventRecord, QualityCheckResult, QualityCheckSpec, QualityResult,
+from .data_types import (EventRecord, Phase, QualityCheckResult, QualityCheckSpec, QualityResult,
                          VerifyOutput)
 from .utils import now_iso, operator_env
 
@@ -52,16 +52,18 @@ def _placeholder(name: str) -> list[str]:
                     f"replace this echo with the real {name} command"]
 
 
-def _check_dir(run, name: str) -> Path:
-    seq = run.phases[-1].seq if run.phases else 0
-    path = run.context_handoff_dir / "quality" / f"{seq:02d}_{name}"
+def _check_dir(run, phase: Phase, name: str) -> Path:
+    path = run.context_handoff_dir / "quality" / f"{phase.seq:02d}_{name}"
     path.mkdir(parents=True, exist_ok=True)
     return path
 
 
-def _run(spec: QualityCheckSpec, run) -> QualityCheckResult:
-    phase = run.phases[-1]
-    output_dir = _check_dir(run, spec.name)
+def _run(spec: QualityCheckSpec, run, phase: Phase) -> QualityCheckResult:
+    # `phase` comes from the caller, not from `run.phases[-1]`: the check (and
+    # its output directory) belongs to the phase running it, and reading list
+    # position instead of taking the phase as a parameter would misattribute
+    # it the moment phases ever overlap.
+    output_dir = _check_dir(run, phase, spec.name)
     output_artifact = output_dir / "command.log"
     command = shlex.join(spec.argv)
     env = operator_env()             # the engineer's own shell environment
@@ -135,7 +137,7 @@ def _run(spec: QualityCheckSpec, run) -> QualityCheckResult:
 # ── Blocks ────────────────────────────────────────────────────────────────────
 # Replace every argv below. See the banner at the top of this file.
 
-def test(run) -> QualityCheckResult:
+def test(run, phase: Phase) -> QualityCheckResult:
     """Run the project's test suite. The highest-value block to wire up first."""
     return _run(QualityCheckSpec(
         name="test",
@@ -143,38 +145,38 @@ def test(run) -> QualityCheckResult:
         operation="build",
         argv=_placeholder("test"),        # e.g. ["bun", "test"] or ["uv", "run", "pytest", "-q"]
         timeout_seconds=600,
-    ), run)
+    ), run, phase)
 
 
-def lint(run) -> QualityCheckResult:
+def lint(run, phase: Phase) -> QualityCheckResult:
     return _run(QualityCheckSpec(
         name="lint",
         area="backend",
         operation="lint",
         argv=_placeholder("lint"),        # e.g. ["bun", "x", "oxlint@1.36.0", "src"]
-    ), run)
+    ), run, phase)
 
 
-def typecheck(run) -> QualityCheckResult:
+def typecheck(run, phase: Phase) -> QualityCheckResult:
     return _run(QualityCheckSpec(
         name="typecheck",
         area="backend",
         operation="typecheck",
         argv=_placeholder("typecheck"),   # e.g. ["bun", "x", "tsc", "--noEmit"]
-    ), run)
+    ), run, phase)
 
 
-def build(run) -> QualityCheckResult:
-    output_dir = _check_dir(run, "build") / "bundle"
+def build(run, phase: Phase) -> QualityCheckResult:
+    output_dir = _check_dir(run, phase, "build") / "bundle"
     return _run(QualityCheckSpec(
         name="build",
         area="backend",
         operation="build",
         argv=_placeholder("build"),       # e.g. ["bun", "build", "src/index.ts", "--outdir", str(output_dir)]
-    ), run)
+    ), run, phase)
 
 
-def run_tests(run) -> QualityResult:
+def run_tests(run, phase: Phase) -> QualityResult:
     """The test suite alone, as a QualityResult — the deterministic test phase.
 
     This is what replaces a `tester` agent once the command is written down. An
@@ -182,7 +184,7 @@ def run_tests(run) -> QualityResult:
     subprocess already knows; the repair loop is unchanged, because a failure
     still reaches the builder through `as_envelope` below.
     """
-    check = test(run)
+    check = test(run, phase)
     failures = ([] if check.passed else
                 [f"{check.name}: `{check.command}` exited {check.returncode}\n"
                  f"{check.output_tail}".rstrip()])
@@ -211,7 +213,7 @@ def as_envelope(result: QualityResult, what: str) -> VerifyOutput:
     )
 
 
-def run_quality(run) -> QualityResult:
+def run_quality(run, phase: Phase) -> QualityResult:
     """Run every block and collect ALL failures — one pass tells you everything.
 
     Ordering contract for the caller: a failing block does NOT fail the phase.
@@ -224,7 +226,7 @@ def run_quality(run) -> QualityResult:
         typecheck,
         build,
     ]
-    checks = [block(run) for block in blocks]
+    checks = [block(run, phase) for block in blocks]
     # A failure is the command, its exit code, and what it actually printed —
     # everything a builder needs to repair without opening a log or being told
     # what the error "means" by a parser that guessed.
