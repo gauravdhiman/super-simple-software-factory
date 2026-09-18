@@ -15,6 +15,7 @@ Extend `adws/adw_modules/` with new low-level logic.
 | `runner.py` | the `Run` object; `run.phase(PhaseParams)` context manager; `ph.call(AgentCall)` |
 | `agent_pi.py` | the Pi interface (v1) — non-interactive `pi -p --mode json`, JSONL stream tailed live, model resolved against `~/.pi/agent/models.json`; `--session-id` creates-or-continues, so running and continuing an agent are the same call |
 | `agent_cc.py` | the Claude Code interface — stubbed in v1, lands in v2 |
+| `harness.py` | the worker-backend contract: `CODING_AGENTS` + adapter per `coding_agent` value (`BINARY`, `IMPLEMENTED`, `resolve_model`, `run`, `ToolCallTracker`, `context_window`), binary discovery, shared tool-call shaping. A new harness = one `agent_<name>.py` implementing the contract — no ADW or dispatch edits |
 | `gates.py` | validation gates over envelope claims |
 | `changes.py` | deterministic change capture: resolve the base ref, `git diff` into `context_handoff/changes.diff`, adapt the `ChangeSet` into an envelope an agent can be handed |
 | `worktree.py` | run isolation: cut worktree + branch from the source ref (`ensure`), rebase the branch onto the latest source (`rebase_onto_source`) — code phases only, never pushed, conflicts abort loudly |
