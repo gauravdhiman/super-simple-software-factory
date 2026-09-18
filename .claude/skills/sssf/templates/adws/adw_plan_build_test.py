@@ -7,7 +7,7 @@
 Usage:
     uv run adws/adw_plan_build_test.py "<prompt or path/to/prompt.md>" [--config adws/adw_sssf_config/sssf.config.yaml] [--adw-id a1b2c3d4] [--source-branch main] [--no-worktree] [--cleanup]
 
-Phases: engineer(request) -> git(isolate) -> planner -> builder -> code(test) [-> builder(fix) -> code(test) ... bounded] -> git(rebase) -> git(commit)
+Phases: engineer(request) -> git(isolate) -> planner -> handoff(seal_plan) -> handoff(verify_handoff) -> builder -> code(test) [-> builder(fix) -> code(test) ... bounded] -> git(rebase) -> git(commit)
 
 Testing is CODE: the suite's command lives in adw_modules/quality.py, so no
 agent spends a context window rediscovering it. Failures flow back to the
@@ -22,7 +22,7 @@ Nothing is pushed automatically.
 import argparse
 import sys
 
-from adw_modules import agents, gates, git_helper, quality, session, utils, worktree
+from adw_modules import agents, gates, git_helper, handoff, quality, session, utils, worktree
 from adw_modules.data_types import (AgentCall, BuildOutput, IsolationRequest,
                                     PhaseParams, PlanOutput)
 
@@ -61,6 +61,16 @@ def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw
                                description="Turn the request into an implementable plan")) as ph:
         plan = ph.call(AgentCall(output_type=PlanOutput, prompt=prompt,
                                  gates=[gates.artifacts_exist, gates.files_non_empty]))
+
+    with run.phase(PhaseParams(name="seal_plan", kind="code", owner="handoff",
+                               description="Fingerprint the plan so the build provably implements this exact spec")) as ph:
+        seal = handoff.seal_artifacts(run, "plan", plan.artifacts)
+        ph.log(label=seal.label, files=len(seal.files), digest=handoff.digest_of(seal))
+
+    with run.phase(PhaseParams(name="verify_handoff", kind="code", owner="handoff",
+                               description="Refuse to build when the plan changed since it was fingerprinted")) as ph:
+        checked = handoff.verify_artifacts(run, "plan")
+        ph.log(label=checked.label, files=len(checked.files), digest=handoff.digest_of(checked))
 
     with run.phase(PhaseParams(name="build", kind="agent", owner="builder",
                                description="Implement the plan exactly")) as ph:

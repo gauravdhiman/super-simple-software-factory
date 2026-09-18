@@ -15,6 +15,7 @@ import subprocess
 from pathlib import Path
 
 from .data_types import EnvelopeBase, GateReport
+from .utils import repo_path
 
 TAIL_CHARS = 1000        # command output kept as evidence on a failure
 
@@ -25,17 +26,8 @@ def _size(path: Path) -> str:
 
 
 def _repo_path(run, value: str) -> Path:
-    """Anchor a repo-relative envelope path at the run's worktree.
-
-    Agents report paths relative to where they worked (`run.repo_root`); in an
-    isolated run that is the worktree, not the process cwd. Absolute paths pass
-    through untouched, and a run without a repo_root keeps the old behaviour.
-    """
-    p = Path(value)
-    if p.is_absolute():
-        return p
-    root = getattr(run, "repo_root", None)
-    return (Path(root) / p) if root else p
+    """Envelope paths are repo-relative to where the agent worked."""
+    return repo_path(getattr(run, "repo_root", None), value)
 
 
 def artifacts_exist(envelope: EnvelopeBase, run) -> GateReport:
