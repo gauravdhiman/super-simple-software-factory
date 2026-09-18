@@ -113,6 +113,8 @@ def ensure(run, request: IsolationRequest) -> IsolationInfo | None:
         if branch == record.branch and git_helper.ref_exists(record.branch, root=outer):
             run.repo_root = path
             run.isolation = record.model_copy(update={"reused": True})
+            run.tracer.session_isolation(run.adw_id, record.branch,
+                                         str(path), record.source_branch)
             return run.isolation
         if git_helper.ref_exists(record.branch, root=outer):
             if path.exists() or _registered_branch(outer, path) is not None:
@@ -123,6 +125,8 @@ def ensure(run, request: IsolationRequest) -> IsolationInfo | None:
             git_helper.attach_worktree(path, record.branch, root=outer)
             run.repo_root = path.resolve()
             run.isolation = record.model_copy(update={"reused": True, "recreated": True})
+            run.tracer.session_isolation(run.adw_id, record.branch,
+                                         str(path.resolve()), record.source_branch)
             return run.isolation
         raise RuntimeError(
             f"run {run.adw_id} previously isolated onto {record.branch} at {record.worktree_path}, "
@@ -158,6 +162,8 @@ def ensure(run, request: IsolationRequest) -> IsolationInfo | None:
     _isolation_file(run).write_text(info.model_dump_json(indent=2))
     run.repo_root = path.resolve()
     run.isolation = info
+    run.tracer.session_isolation(run.adw_id, info.branch,
+                                 str(path.resolve()), info.source_branch)
     return info
 
 

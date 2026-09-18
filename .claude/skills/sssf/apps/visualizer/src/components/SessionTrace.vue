@@ -11,12 +11,13 @@ import type {
   Session,
   SessionUsage,
 } from '../lib/types'
-import { Bot, SquareTerminal, UserRound } from 'lucide-vue-next'
+import { Bot, GitBranch, SquareTerminal, UserRound } from 'lucide-vue-next'
 import { fetchEnvelopes, fetchEvents, fetchGates, fetchSession } from '../lib/api'
 import { axisTicks, fmtDate, payloadOk, ts } from '../lib/format'
 import { modelIcon, modelName } from '../lib/models'
 import { agentColor, hexAlpha, parseAgentStart } from '../lib/events'
 import { navigate, phaseCrumb } from '../lib/router'
+import DetailSection from './DetailSection.vue'
 import StatusChip from './StatusChip.vue'
 import StatChip from './StatChip.vue'
 import PhaseDetail from './PhaseDetail.vue'
@@ -92,6 +93,54 @@ onUnmounted(() => {
 const selectedPhase = computed(
   () => phases.value.find((p) => p.phase_id === props.phaseId) ?? null,
 )
+
+// ── Run info: isolation + manifest, parsed defensively ──────────────────────
+// manifest_json is written at finish; older dbs and running runs have null,
+// and a malformed blob hides its rows rather than breaking the view.
+
+interface ManifestCommit {
+  phase: string
+  sha: string
+  message: string
+}
+
+interface ManifestHandoff {
+  label: string
+  digest: string
+  files: number
+}
+
+interface ParsedManifest {
+  onto_ref?: string
+  commits?: ManifestCommit[]
+  handoffs?: ManifestHandoff[]
+}
+
+const runInfoOpen = ref(true)
+
+const manifest = computed<ParsedManifest | null>(() => {
+  const raw = session.value?.manifest_json
+  if (!raw) return null
+  try {
+    const parsed = JSON.parse(raw) as Partial<ParsedManifest>
+    if (!parsed || typeof parsed !== 'object') return null
+    return {
+      onto_ref: typeof parsed.onto_ref === 'string' ? parsed.onto_ref : undefined,
+      commits: Array.isArray(parsed.commits) ? parsed.commits : [],
+      handoffs: Array.isArray(parsed.handoffs) ? parsed.handoffs : [],
+    }
+  } catch {
+    return null
+  }
+})
+
+const hasRunInfo = computed(
+  () => session.value?.branch != null || manifest.value !== null,
+)
+
+function shortSha(sha: string): string {
+  return sha.length > 7 ? sha.slice(0, 7) : sha
+}
 
 watchEffect(() => {
   phaseCrumb.value = selectedPhase.value?.name ?? null
@@ -432,6 +481,12 @@ function selectPhase(p: Phase) {
 
     <div v-if="session" class="run-strip">
       <span class="request" :title="session.request ?? ''">{{ session.request }}</span>
+      <span
+        v-if="session.branch"
+        class="branch"
+        :title="`worktree ${session.worktree_path ?? ''} · source ${session.source_branch ?? ''}`"
+        >⎇ {{ session.branch }}</span
+      >
       <StatusChip :status="session.status ?? 'fail'" />
       <span class="dim">started {{ fmtDate(session.started_at) }}</span>
       <span class="run-stats">
@@ -442,6 +497,43 @@ function selectPhase(p: Phase) {
         <StatChip kind="written" :value="usage.written" />
       </span>
     </div>
+
+    <DetailSection
+      v-if="session && hasRunInfo"
+      title="Run"
+      :icon="GitBranch"
+      :count="manifest?.commits?.length ?? null"
+      :open="runInfoOpen"
+      @toggle="runInfoOpen = !runInfoOpen"
+    >
+      <div class="run-info">
+        <div v-if="session.branch" class="ri-row">
+          <span class="ri-key dim">branch</span>
+          <span class="mono">{{ session.branch }}</span>
+        </div>
+        <div v-if="session.worktree_path" class="ri-row">
+          <span class="ri-key dim">worktree</span>
+          <span class="mono dim" :title="session.worktree_path">{{ session.worktree_path }}</span>
+        </div>
+        <div v-if="session.source_branch" class="ri-row">
+          <span class="ri-key dim">source</span>
+          <span class="mono"
+            >{{ session.source_branch
+            }}<span v-if="manifest?.onto_ref" class="dim"> ← {{ manifest.onto_ref }}</span></span
+          >
+        </div>
+        <div v-for="c in manifest?.commits ?? []" :key="c.sha" class="ri-row">
+          <span class="ri-key dim">{{ c.phase || 'commit' }}</span>
+          <span class="mono" :title="c.sha">{{ shortSha(c.sha) }}</span>
+          <span class="dim">{{ c.message }}</span>
+        </div>
+        <div v-for="h in manifest?.handoffs ?? []" :key="h.label" class="ri-row">
+          <span class="ri-key dim">sealed</span>
+          <span class="mono">{{ h.label }} {{ h.digest }}</span>
+          <span class="dim">{{ h.files }} file(s)</span>
+        </div>
+      </div>
+    </DetailSection>
 
     <div v-if="phases.length" class="waterfall">
       <div class="row axis-row">
@@ -569,6 +661,43 @@ function selectPhase(p: Phase) {
   padding: 14px 24px;
   border-bottom: 1px solid var(--border-soft);
   flex-wrap: wrap;
+}
+
+.branch {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 16px;
+  color: var(--cyan);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.run-info {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 2px 16px 12px;
+}
+
+.ri-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 16px;
+  overflow: hidden;
+}
+
+.ri-key {
+  flex: none;
+  width: 90px;
+}
+
+.ri-row .mono {
+  font-family: var(--mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .run-strip .request {

@@ -12,7 +12,7 @@ import json
 import time
 from contextlib import contextmanager
 
-from . import agents, git_helper
+from . import agents, git_helper, manifest
 from .console import Console
 from .data_types import AgentCall, EnvelopeBase, EventRecord, IsolationInfo, Phase, PhaseParams
 from .utils import ensure_dir, now_iso, resolve_data_root
@@ -146,5 +146,14 @@ class Run:
                 type="error", name="not_accepted", payload={"reason": note}))
             self.console.note(f"not accepted: {note}")
         self.tracer.session_finish(self.adw_id, ok=ok)
+        try:
+            record = manifest.write(self)
+            self.console.note(f"manifest: {len(record.phases)} phase(s), "
+                              f"{len(record.commits)} commit(s), "
+                              f"{len(record.handoffs)} sealed handoff(s)")
+        except Exception as error:
+            # A finished run with a missing manifest is a logging gap, never a
+            # failed run — the trace it was summarized from is still intact.
+            self.console.note(f"manifest unavailable: {error}")
         self.console.session_finished(ok, self.tokens, self.cost, self.cfg.observability.db)
         return 0 if ok else 1

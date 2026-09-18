@@ -74,17 +74,32 @@ export class SssfDb {
     }
     this.path = path;
     this.sessionsDir = resolve(dirname(path), "sessions");
-    this.db = new Database(path, { readonly: true });
+    // The open below is lazy — SQLite touches the file on first use — so the
+    // companion-missing failure surfaces at the first PRAGMA, not here. Both
+    // stay inside the try for one actionable error either way.
+    try {
+      this.db = new Database(path, { readonly: true });
 
-    // WAL is set by the tracer when it creates the db; a readonly connection
-    // cannot change it, so we assert rather than set, and always take the
-    // busy_timeout so a concurrent writer never turns into a failed request.
-    this.db.exec("PRAGMA busy_timeout = 5000");
-    this.db.exec("PRAGMA synchronous = NORMAL");
-    const mode = this.db
-      .query<{ journal_mode: string }, []>("PRAGMA journal_mode")
-      .get();
-    this.journalMode = mode?.journal_mode ?? "unknown";
+      // WAL is set by the tracer when it creates the db; a readonly connection
+      // cannot change it, so we assert rather than set, and always take the
+      // busy_timeout so a concurrent writer never turns into a failed request.
+      this.db.exec("PRAGMA busy_timeout = 5000");
+      this.db.exec("PRAGMA synchronous = NORMAL");
+      const mode = this.db
+        .query<{ journal_mode: string }, []>("PRAGMA journal_mode")
+        .get();
+      this.journalMode = mode?.journal_mode ?? "unknown";
+    } catch (error) {
+      // bun:sqlite cannot open a WAL database readonly while its -shm/-wal
+      // companions are missing (a VACUUM or a cleanup removes them, and only
+      // a read-write tracer open recreates them). The db itself is fine — say
+      // what revives it instead of leaking SQLITE_CANTOPEN.
+      throw new Error(
+        `cannot open ${path} readonly (${(error as Error).message}). ` +
+          `If its -shm/-wal companions are missing, run any ADW once to recreate them.`,
+        { cause: error },
+      );
+    }
     if (this.journalMode.toLowerCase() !== "wal") {
       console.warn(
         `[db] journal_mode is "${this.journalMode}", expected "wal" — ` +
@@ -156,6 +171,10 @@ export class SssfDb {
         `SELECT adw_id, ${this.optionalColumn("sessions", "adw_name")}, request,
                 status, engineer, started_at, ended_at,
                 total_tokens, total_cost,
+                ${this.optionalColumn("sessions", "branch")},
+                ${this.optionalColumn("sessions", "worktree_path")},
+                ${this.optionalColumn("sessions", "source_branch")},
+                ${this.optionalColumn("sessions", "manifest_json")},
                 ${this.optionalColumn("sessions", "archived")}
            FROM sessions
           WHERE COALESCE(${this.hasColumn("sessions", "archived") ? "archived" : "0"}, 0) = 0
@@ -207,8 +226,12 @@ export class SssfDb {
       this.db
         .query<Session, [string]>(
           `SELECT adw_id, ${this.optionalColumn("sessions", "adw_name")}, request,
-                  status, engineer, started_at, ended_at,
-                  total_tokens, total_cost
+                   status, engineer, started_at, ended_at,
+                   total_tokens, total_cost,
+                   ${this.optionalColumn("sessions", "branch")},
+                   ${this.optionalColumn("sessions", "worktree_path")},
+                   ${this.optionalColumn("sessions", "source_branch")},
+                   ${this.optionalColumn("sessions", "manifest_json")}
              FROM sessions WHERE adw_id = ?`,
         )
         .get(adwId) ?? null

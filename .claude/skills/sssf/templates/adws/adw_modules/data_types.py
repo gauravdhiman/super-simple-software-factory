@@ -418,6 +418,57 @@ class SSSFConfig(BaseModel):
     agents: list[AgentConfig] = Field(default_factory=list)
 
 
+# ── Run manifest (one file saying what a run did) ────────────────────────────
+
+class CommitRecord(BaseModel):
+    """One commit a run landed: where it happened and what it says."""
+
+    phase: str = ""                   # the commit phase's name
+    sha: str = ""
+    message: str = ""
+
+
+class PhaseSummary(BaseModel):
+    """One phase's outcome — the manifest's table of contents."""
+
+    seq: int = 0
+    name: str = ""
+    kind: str = ""
+    owner: str = ""
+    status: str = ""
+
+
+class HandoffState(BaseModel):
+    """One sealed handoff, as verified or last seen."""
+
+    label: str = ""
+    digest: str = ""                  # short combined id, see handoff.digest_of
+    files: int = 0
+
+
+class RunManifest(BaseModel):
+    """A run's curated summary. Built in run.finish() from the in-memory run
+    plus the trace it already wrote — no new information, just one place to
+    read it. The session-dir file stays the raw record; sessions.manifest_json
+    is the queryable mirror the UI polls."""
+
+    adw_id: str = ""
+    adw_name: str = ""
+    engineer: str = ""
+    status: str = ""                  # success | fail
+    started_at: str = ""
+    ended_at: str = ""
+    tokens: int = 0
+    cost: float = 0.0
+    branch: str = ""                  # empty when the run worked in place
+    worktree_path: str = ""
+    source_branch: str = ""
+    onto_ref: str = ""
+    phases: list[PhaseSummary] = Field(default_factory=list)
+    commits: list[CommitRecord] = Field(default_factory=list)
+    handoffs: list[HandoffState] = Field(default_factory=list)
+
+
 # ── Tracing ──────────────────────────────────────────────────────────────────
 
 class EventRecord(BaseModel):

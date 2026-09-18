@@ -41,6 +41,10 @@ python3 adws/tools/gc_worktrees.py --apply
 
 Or let a run clean up after itself: `--cleanup` (or `isolation.cleanup_on_success: true`) removes the checkout at the end of a **green** run with a **clean** tree — the branch is always kept for the push + PR. Anything else (failed, dirty, in-place) keeps the checkout and says why. Deletion is strictly opt-in; the default stays exactly as above.
 
+## What a run did
+
+Every finished run writes `adws/adw_data/sessions/<adw_id>/manifest.json` — phases, commits (with shas), branch, seals — mirrored to the trace db, so the visualizer's run view shows a Run section (branch, worktree, source, commits, sealed handoffs) and every session card carries its branch. No SQL needed to answer "what did this run do".
+
 The prompt is inline text or a file path. Launch in the background so you can poll while it works; the `adw_id` is printed on startup — capture it, everything else keys off it.
 
 ### Listen for the roster
@@ -140,3 +144,5 @@ A killed run marks itself `fail` and closes its process rows, so the trace never
 Tell the engineer, in order: which chain and which roster you launched (name the config whenever it was not the default), which phase is running now (or which failed), phase statuses in sequence, and for a failure the gate violations or the error verbatim. Remember **every phase defaults to `fail`** — a phase showing `fail` may simply never have completed; `queued` means it never started. Don't dress up a partial run as a success.
 
 For a visual live view, the visualizer app in the skill (`just obs`, or tmux sessions viz-api :4600 + viz-ui :4601) polls this same db — sessions as cards, runs as swim lanes, phases and tool calls drill-in. The sqlite queries above remain the headless equivalent.
+
+If the server exits with "cannot open ... readonly (... companions are missing)", the db's `-shm`/`-wal` helpers are gone (VACUUM, cleanup, file copy) — the db itself is fine. Run any ADW once to recreate them, then re-run `just obs`.
