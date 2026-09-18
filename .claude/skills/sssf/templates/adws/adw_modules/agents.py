@@ -98,6 +98,7 @@ def execute(run, phase: Phase, call: AgentCall) -> EnvelopeBase:
         "context_handoff_dir": str(run.context_handoff_dir),
     }
     system_text = prompts.render(agent.prompt_engineering.system, variables)
+    system_text += boundary_text(str(run.repo_root), str(run.session_dir))
     user_text = prompts.render(agent.prompt_engineering.user, variables)
     prompts.save(agent_dir / "prompts", "system.md", system_text)
     prompts.save(agent_dir / "prompts", "user.md", user_text)
@@ -229,6 +230,29 @@ def execute(run, phase: Phase, call: AgentCall) -> EnvelopeBase:
     if envelope.status != "success":
         raise RuntimeError(f"{agent.name} reported status={envelope.status!r}: {envelope.summary}")
     return envelope
+
+
+def boundary_text(repo_root: str, session_dir: str) -> str:
+    """Working boundary appended to every agent's system text.
+
+    Writes are enforced post-hoc by permissions.py, but reads cannot be:
+    the agent is a CLI subprocess on the same filesystem, and a git
+    change-set snapshot cannot see a read. So the read boundary is stated,
+    centrally, on every call — no matter what the agent's own prompt files
+    say. Other runs' session directories are the specific prohibition: they
+    sit inside the repo tree (via data_dir), recon tools trip over them, and
+    their stale envelopes contaminate the current run. Every tool call is
+    still traced, so the operator can audit what was actually opened.
+    """
+    sessions_root = str(Path(session_dir).parent)
+    return (
+        "\n\n[Working boundary]\n"
+        f"- Work only inside the repo: {repo_root}.\n"
+        f"- Your run's session directory is {session_dir} (your prompts, "
+        "raw output, envelope, and shared context_handoff/).\n"
+        f"- Other runs' session directories ({sessions_root}/<another-adw-id>/) "
+        "are off-limits: never list, open, or read them."
+    )
 
 
 # ── internals ────────────────────────────────────────────────────────────────
