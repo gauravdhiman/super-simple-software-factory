@@ -35,7 +35,7 @@ def main(prompt: str, agent: str = "builder",
         ph.log(input=prompt)
 
     with run.phase(PhaseParams(name="isolate", kind="code", owner="git",
-                               description="Give this run its own worktree and branch so parallel runs never share a tree")) as ph:
+                               description="Settle where this run works — its own worktree and branch when isolation applies, otherwise in place — so parallel runs never share a tree")) as ph:
         # A read-only agent has nothing to isolate — unless the engineer asked
         # for a worktree explicitly, it runs in place and `just demo` stays clean.
         read_only = agents.resolve(cfg, agent).writes == []

@@ -86,7 +86,7 @@ def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw
         ph.log(input=prompt)
 
     with run.phase(PhaseParams(name="isolate", kind="code", owner="git",
-                               description="Give this run its own worktree and branch so parallel runs never share a tree")) as ph:
+                               description="Settle where this run works — its own worktree and branch when isolation applies, otherwise in place — so parallel runs never share a tree")) as ph:
         info = worktree.ensure(run, IsolationRequest(source_branch=source_branch, disable=no_worktree))
         if info is None:
             ph.log(mode="in-place", root=str(run.repo_root))
