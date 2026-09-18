@@ -15,7 +15,7 @@ from typing import Optional
 
 import yaml
 
-from . import agent_pi, permissions, prompts
+from . import agent_pi, harness, permissions, prompts
 from .data_types import (AgentCall, AgentConfig, EnvelopeBase, EventRecord,
                          GateCheck, GateReport, Phase, PiRequest, SSSFConfig,
                          UsageBreakdown)
@@ -58,16 +58,26 @@ def validate(cfg: SSSFConfig, required: list[str]) -> None:
         except SystemExit as e:
             problems.append(str(e))
             continue
-        if agent.coding_agent != "pi":
+        try:
+            backend = harness.load(agent.coding_agent)
+        except harness.UnknownHarness as e:
+            problems.append(f"agent {name!r}: {e}")
+            continue
+        if not backend.IMPLEMENTED:
             problems.append(f"agent {name!r}: coding_agent {agent.coding_agent!r} "
-                            f"is not implemented in v1 (pi only)")
+                            f"is schema-valid but not implemented yet")
+            continue
+        if harness.binary(agent.coding_agent) is None:
+            env_var, default = backend.BINARY
+            problems.append(f"agent {name!r}: coding_agent {agent.coding_agent!r} "
+                            f"needs its CLI — ${env_var} or {default!r} on PATH")
         for label, ref in (("system", agent.prompt_engineering.system),
                            ("user", agent.prompt_engineering.user)):
             if not Path(ref).is_file():
                 problems.append(f"agent {name!r}: {label} prompt not found: {ref}")
         try:
-            agent_pi.resolve_model(agent.model)
-        except ValueError as e:
+            backend.resolve_model(agent.model)
+        except (ValueError, NotImplementedError) as e:
             problems.append(f"agent {name!r}: {e}")
     if problems:
         raise SystemExit("config validation failed:\n- " + "\n- ".join(problems))
@@ -76,8 +86,9 @@ def validate(cfg: SSSFConfig, required: list[str]) -> None:
 # ── execution ────────────────────────────────────────────────────────────────
 
 def execute(run, phase: Phase, call: AgentCall) -> EnvelopeBase:
-    """One agent call: render prompts -> pi run -> typed parse -> gates -> envelope."""
+    """One agent call: render prompts -> harness run -> typed parse -> gates -> envelope."""
     agent = resolve(run.cfg, phase.params.owner)
+    backend = harness.load(agent.coding_agent)   # validated before any phase opens
     agent_dir = run.session_dir / agent.name
     agent_dir.mkdir(parents=True, exist_ok=True)
 
@@ -103,7 +114,7 @@ def execute(run, phase: Phase, call: AgentCall) -> EnvelopeBase:
                                           "harness_engineering": agent.harness_engineering}))
     run.console.agent_started(agent.name, agent.model, session_id)
 
-    # Parse retries and gate corrections re-enter the SAME pi session, so the
+    # Parse retries and gate corrections re-enter the SAME harness session, so the
     # last send is the one whose context occupancy is current — while spend is
     # the opposite: every send costs, so usage accumulates across all of them.
     latest: agent_pi.PiResult | None = None
@@ -128,9 +139,9 @@ def execute(run, phase: Phase, call: AgentCall) -> EnvelopeBase:
                         for e in agent.harness_engineering],
             cwd=str(run.repo_root),
         )
-        result = agent_pi.run(
+        result = backend.run(
             request,
-            on_event=_event_forwarder(run, phase, agent.name),
+            on_event=_event_forwarder(run, phase, agent.name, backend.ToolCallTracker()),
             on_spawn=lambda pid: run.tracer.process_start(
                 run.adw_id, "agent", agent.name, pid,
                 f"{agent.coding_agent} {agent.name} {agent.model}"),
@@ -236,10 +247,8 @@ def _agent_session_id(run, agent: AgentConfig) -> str:
     return f"sssf-{run.adw_id}-{agent.name}-{new_id(4)}"
 
 
-def _event_forwarder(run, phase: Phase, agent_name: str):
+def _event_forwarder(run, phase: Phase, agent_name: str, tracker):
     """One tool_call event per real tool call, with its exact args and result."""
-    tracker = agent_pi.ToolCallTracker()
-
     def forward(event: dict) -> None:
         record = tracker.observe(event)
         if record is None:

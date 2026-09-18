@@ -17,18 +17,20 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from .data_types import PiRequest, PiResult
+from .harness import (ARG_VALUE_CHARS, LABEL_CHARS, RESULT_SNIPPET_CHARS,
+                      clip_text, tool_label)
 from .utils import now_iso, operator_env
+
+BINARY = ("PI_PATH", "pi")
+IMPLEMENTED = True
 
 PI_PATH = os.environ.get("PI_PATH", "pi")
 MODELS_JSON = os.environ.get("PI_MODELS_PATH",
                              str(Path.home() / ".pi" / "agent" / "models.json"))
 
-RESULT_SNIPPET_CHARS = 20_000   # tool output rides along whole; clip only guards pathological cases
-ARG_VALUE_CHARS = 20_000        # args too — the UI scrolls, it must not be handed cut-off data
-LABEL_CHARS = 80                # "bash: <command>" shown as the event name
-
-# The arg that identifies a call at a glance, in the order tools tend to use.
-PRIMARY_ARGS = ("command", "path", "file_path", "pattern", "query", "url")
+RESULT_SNIPPET_CHARS = 20_000   # re-exported for trackers; shaped in harness.py
+ARG_VALUE_CHARS = 20_000
+LABEL_CHARS = 80
 
 
 def _count(value: str) -> int:
@@ -125,17 +127,13 @@ def _text_of(container: dict) -> str:
 
 
 def _clip(text: str, limit: int) -> str:
-    return text if len(text) <= limit else text[:limit].rstrip() + "…"
+    """Shaping lives in harness.py so every backend's tracker reads the same."""
+    return clip_text(text, limit)
 
 
 def _label(tool: str, args: dict) -> str:
     """One-line human name for a tool call: `bash: ls -la src`."""
-    value = next((args[key] for key in PRIMARY_ARGS
-                  if isinstance(args.get(key), str) and args[key].strip()), "")
-    if not value:
-        value = next((v for v in args.values() if isinstance(v, str) and v.strip()), "")
-    value = " ".join(str(value).split())
-    return f"{tool}: {_clip(value, LABEL_CHARS)}" if value else tool
+    return tool_label(tool, args)
 
 
 class ToolCallTracker:
