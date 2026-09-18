@@ -75,4 +75,4 @@ Deep specs, when needed: [references/config.md](references/config.md) · [refere
 
 ## v1 scope
 
-Workers run on a configured harness: `pi` and `muse` implemented (`coding_agent: pi | muse`), default model `gemini-3.6-flash` via openrouter, thinking `medium`. `claude_code`, `opencode`, `codex`, `omp` are schema-valid with adapters to come. The visualizer app ships in a later pass — observe via sqlite queries until then.
+Workers run on a configured harness: `pi`, `muse`, and `opencode` implemented (`coding_agent: pi | muse | opencode`), default model `gemini-3.6-flash` via openrouter, thinking `medium`. `claude_code`, `codex`, `omp` are schema-valid with adapters to come. The visualizer app ships in a later pass — observe via sqlite queries until then.

@@ -22,11 +22,19 @@ Thinking levels are Pi's reasoning effort: `off | minimal | low | medium | high 
 
 ```yaml
   - name: builder
-    coding_agent: muse            # pi (default) | muse; more adapters to come
+    coding_agent: muse            # pi (default) | muse | opencode; more adapters to come
     model: muse-spark-1.3-contributor
 ```
 
 `defaults.coding_agent` sets the fallback; a per-agent `coding_agent` overrides it. Auth stays outside the factory — each CLI uses whatever the operator configured (subscription or keys), so no `.env` change is implied. Three Muse specifics: model ids pass through opaquely (non-empty is the only check); thinking maps the Pi ladder with `off` → `none`; there is no tools allowlist, so a `tools:` list is accepted and ignored — the repo boundary stays enforced post-hoc by `permissions.py`, and usage/cost read zero because Muse's stream carries neither. `MUSE_PATH` overrides the binary when it is not on PATH.
+
+```yaml
+  - name: builder
+    coding_agent: opencode
+    model: meta/muse-spark-1.3-contributor   # ALWAYS provider/model-id (see `opencode models`)
+```
+
+Four OpenCode specifics: model ids pass through opaquely like Muse, but write them as `provider/model`; thinking passes straight through `--variant` (provider-specific, unknown values ignored) except `off`, which drops the flag and keeps the provider default; there is no tools allowlist, so a `tools:` list is accepted and ignored — the agent runs as opencode's `build` agent with `--auto` (asks approved, explicit denies hold), and the repo boundary stays enforced post-hoc by `permissions.py`; usage/cost are real, parsed from the stream's `step_finish` events. `OPENCODE_PATH` overrides the binary when it is not on PATH.
 
 ## Recolor an agent's lane
 

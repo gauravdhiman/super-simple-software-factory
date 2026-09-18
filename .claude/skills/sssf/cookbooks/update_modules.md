@@ -15,6 +15,7 @@ Extend `adws/adw_modules/` with new low-level logic.
 | `runner.py` | the `Run` object; `run.phase(PhaseParams)` context manager; `ph.call(AgentCall)` |
 | `agent_pi.py` | the Pi interface (v1) — non-interactive `pi -p --mode json`, JSONL stream tailed live, model resolved against `~/.pi/agent/models.json`; `--session-id` creates-or-continues, so running and continuing an agent are the same call |
 | `agent_muse.py` | the Muse interface — `muse exec --json` tailed live, factory session id mapped to a persisted UUID (`--session-id` demands one); system text composed ahead of user text (no system flag); usage/cost read zero, honestly |
+| `agent_opencode.py` | the OpenCode interface — `opencode run --format json` tailed live, factory session id mapped to a persisted server-minted id (`--session` resumes); system text composed ahead of user text (no system flag); thinking passes through `--variant` (`off` drops the flag); usage/cost parsed from `step_finish` |
 | `agent_cc.py` | the Claude Code interface — stubbed in v1, lands in v2 |
 | `harness.py` | the worker-backend contract: `CODING_AGENTS` + adapter per `coding_agent` value (`BINARY`, `IMPLEMENTED`, `resolve_model`, `run`, `ToolCallTracker`, `context_window`), binary discovery, shared tool-call shaping. A new harness = one `agent_<name>.py` implementing the contract — no ADW or dispatch edits |
 | `gates.py` | validation gates over envelope claims |
