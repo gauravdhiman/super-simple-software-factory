@@ -43,19 +43,20 @@ agents:
 
 
 def test_known_harnesses_resolve(repo, monkeypatch):
-    module = harness.load("pi")
-    assert module.BINARY and len(module.BINARY) == 2
-    assert isinstance(module.IMPLEMENTED, bool)
-    assert callable(module.resolve_model)
-    assert callable(module.run)
-    assert callable(module.context_window)
+    for name in ("pi", "muse"):
+        module = harness.load(name)
+        assert module.BINARY and len(module.BINARY) == 2
+        assert isinstance(module.IMPLEMENTED, bool)
+        assert callable(module.resolve_model)
+        assert callable(module.run)
+        assert callable(module.context_window)
     # claude_code is schema-valid but stubbed: loads, refuses at validate
     assert harness.load("claude_code").IMPLEMENTED is False
     with pytest.raises(harness.UnknownHarness):
         harness.load("definitely-not-a-harness")
-    # opencode/codex/muse/omp have no adapter module yet — same error family
+    # opencode/codex/omp have no adapter module yet — same error family
     with pytest.raises(harness.UnknownHarness, match="no adapter module"):
-        harness.load("muse")
+        harness.load("opencode")
 
 
 def test_binary_prefers_env_override_then_path(repo, monkeypatch):
@@ -85,7 +86,7 @@ def test_unknown_harness_fails_at_load(repo):
 
 
 def test_validate_rejects_missing_adapter(repo):
-    cfg = _config_with_agent(MINIMAL, "muse", "muse-spark-1.3-contributor")
+    cfg = _config_with_agent(MINIMAL, "opencode", "big-pickle")
     with pytest.raises(SystemExit, match="no adapter module"):
         agents.validate(cfg, ["scout"])
 

@@ -18,6 +18,16 @@ Thinking levels are Pi's reasoning effort: `off | minimal | low | medium | high 
 
 **A model change means a fresh session.** `agent_map.json` records the model each coding-agent session was created with. When a joined run (`--adw-id`) finds the config's model no longer matches the recorded one, that agent starts a **new** session rather than resuming — the map is updated, never a bad resume. Thinking changes do not invalidate a session; model changes do. Expect the agent to lose its accumulated context window on the first run after the change.
 
+## Point an agent at a different harness
+
+```yaml
+  - name: builder
+    coding_agent: muse            # pi (default) | muse; more adapters to come
+    model: muse-spark-1.3-contributor
+```
+
+`defaults.coding_agent` sets the fallback; a per-agent `coding_agent` overrides it. Auth stays outside the factory — each CLI uses whatever the operator configured (subscription or keys), so no `.env` change is implied. Three Muse specifics: model ids pass through opaquely (non-empty is the only check); thinking maps the Pi ladder with `off` → `none`; there is no tools allowlist, so a `tools:` list is accepted and ignored — the repo boundary stays enforced post-hoc by `permissions.py`, and usage/cost read zero because Muse's stream carries neither. `MUSE_PATH` overrides the binary when it is not on PATH.
+
 ## Recolor an agent's lane
 
 ```yaml
