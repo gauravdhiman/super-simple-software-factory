@@ -368,6 +368,9 @@ class IsolationRequest(BaseModel):
 
     source_branch: Optional[str] = None   # CLI --source-branch; None = resolve
     disable: bool = False                 # CLI --no-worktree
+    reason: str = ""                      # why isolation is off, for the outcome
+                                          # line — e.g. "--no-worktree passed",
+                                          # "read-only agent, nothing to isolate"
 
 
 class IsolationInfo(BaseModel):

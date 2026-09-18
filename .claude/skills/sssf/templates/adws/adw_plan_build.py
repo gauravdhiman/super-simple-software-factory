@@ -37,15 +37,10 @@ def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw
         ph.log(input=prompt)
 
     with run.phase(PhaseParams(name="isolate", kind="code", owner="git",
-                               description="Give this run its own worktree and branch so parallel runs never share a tree")) as ph:
-        info = worktree.ensure(run, IsolationRequest(source_branch=source_branch, disable=no_worktree))
-        if info is None:
-            ph.log(mode="in-place", root=str(run.repo_root))
-        else:
-            ph.log(branch=info.branch, worktree=info.worktree_path,
-                   source=f"{info.source_branch} ({info.onto_ref})",
-                   base=git_helper.short_sha(info.base_commit, root=run.repo_root),
-                   reused=info.reused, recreated=info.recreated)
+                               description="Settle where this run works — its own worktree and branch when isolation applies, otherwise in place — so parallel runs never share a tree")) as ph:
+        request = IsolationRequest(source_branch=source_branch, disable=no_worktree)
+        info = worktree.ensure(run, request)
+        worktree.log_result(ph, run, info, request)
 
     with run.phase(PhaseParams(name="plan", kind="agent", owner="planner",
                                description="Turn the request into an implementable plan")) as ph:
