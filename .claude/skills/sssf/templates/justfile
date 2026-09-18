@@ -110,5 +110,8 @@ procs ADW_ID:
 # app dir and would otherwise look for a trace db sitting next to itself.
 
 # boot the trace UI, http://localhost:4601 (api on :4600)
+# If the server exits with "cannot open ... readonly (... companions are
+# missing)", the db's -shm/-wal helpers are gone (VACUUM, cleanup, file copy).
+# The db itself is fine — run any ADW once to recreate them, then re-run obs.
 obs:
     cd .claude/skills/sssf/apps/visualizer && bun install && (SSSF_DB={{justfile_directory()}}/{{db}} bun run server/index.ts &) && bunx vite
