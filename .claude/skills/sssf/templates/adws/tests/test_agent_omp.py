@@ -149,3 +149,23 @@ def test_build_command_tools_and_extensions():
     assert "-e" in cmd and "/abs/ext.ts" in cmd
     bare = agent_omp.build_command(_request(tools=None, extensions=[]), None)
     assert "--tools" not in bare and "-e" not in bare
+
+
+def test_tools_for_translates_pi_vocabulary():
+    assert agent_omp.tools_for(["read", "bash", "edit", "write", "grep"]) == \
+        ["read", "bash", "edit", "write", "grep"]
+    assert agent_omp.tools_for(["find"]) == ["glob"]
+    assert agent_omp.tools_for(["glob"]) == ["glob"]
+    # pi-only and foreign-extension tools are dropped, never passed through
+    assert agent_omp.tools_for(["read", "ls", "find", "subagent_create"]) == \
+        ["read", "glob"]
+    assert agent_omp.tools_for(["ls"]) == []
+    assert agent_omp.tools_for(None) == []
+    assert agent_omp.tools_for([]) == []
+
+
+def test_build_command_drops_unmapped_tools_flag():
+    cmd = agent_omp.build_command(_request(tools=["read", "ls", "find"]), None)
+    assert "--tools" in cmd and "read,glob" in cmd
+    cmd = agent_omp.build_command(_request(tools=["ls"]), None)
+    assert "--tools" not in cmd

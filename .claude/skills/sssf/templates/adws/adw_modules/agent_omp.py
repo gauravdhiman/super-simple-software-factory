@@ -26,6 +26,10 @@ Three deliberate choices, documented because they differ from pi:
 * Headless runs never block on approvals: the factory relies on the
   operator's configured approval policy being non-interactive-safe, and the
   repo boundary stays enforced post-hoc by permissions.py either way.
+* Tool names are translated (`tools_for`): OMP rejects unknown `--tools`
+  values outright and speaks a smaller vocabulary (`find` -> `glob`, no `ls`
+  — bash covers it). Unmapped names are dropped, never passed through, so a
+  pi-vocabulary roster cannot fail an OMP run.
 
 Model ids resolve against `omp models --json` (provider/id selectors, pi's
 ambiguity errors); usage and cost fold turn by turn from the stream, and the
@@ -57,6 +61,22 @@ IMPLEMENTED = True
 
 OMP_PATH = os.environ.get("OMP_PATH", "omp")
 SESSION_MAP_FILENAME = "omp_sessions.json"
+
+# Pi tool vocabulary -> OMP's. OMP rejects unknown --tools values outright
+# (the whole run fails), and its list differs: no `ls` or `find`, but a
+# `glob` that covers finding. Names with no OMP equivalent are dropped — bash
+# still covers the capability — and the repo boundary stays enforced
+# post-hoc by permissions.py either way, so a dropped name never widens what
+# an agent may change, only which dedicated tool it gets.
+TOOLS_MAP = {
+    "read": "read",
+    "bash": "bash",
+    "edit": "edit",
+    "write": "write",
+    "grep": "grep",
+    "find": "glob",
+    "glob": "glob",
+}
 
 
 def _count(value) -> int:
@@ -187,6 +207,24 @@ def _read_map(session_dir: str) -> dict:
     return {}
 
 
+def tools_for(tools: list[str] | None) -> list[str]:
+    """Translate a roster tools list into OMP's vocabulary.
+
+    Returns the mapped names, deduplicated in first-seen order. Unknown names
+    (pi-only tools like `ls`, another harness's extension tools) are dropped:
+    OMP fails the entire run on an unknown --tools value, and bash still
+    covers the lost capabilities. None/empty in means no flag out.
+    """
+    if not tools:
+        return []
+    seen: list[str] = []
+    for name in tools:
+        mapped = TOOLS_MAP.get(name)
+        if mapped and mapped not in seen:
+            seen.append(mapped)
+    return seen
+
+
 def build_command(request: PiRequest, harness_id: Optional[str]) -> list[str]:
     """Argv for one headless omp turn. Pure — unit-tested without spawning.
 
@@ -204,7 +242,11 @@ def build_command(request: PiRequest, harness_id: Optional[str]) -> list[str]:
         "--cwd", request.cwd,
     ]
     if request.tools:
-        cmd += ["--tools", ",".join(request.tools)]
+        mapped = tools_for(request.tools)
+        if mapped:
+            cmd += ["--tools", ",".join(mapped)]
+        # else: every name was unmapped — omit the flag (OMP default is all
+        # tools) rather than fail the run; permissions.py still bounds writes.
     for extension in request.extensions:
         cmd += ["-e", extension]
     if harness_id:
