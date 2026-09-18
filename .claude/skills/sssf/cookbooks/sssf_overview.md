@@ -26,6 +26,7 @@ adws/
 │   ├── agent_pi.py              Pi interface (v1)   ·   agent_cc.py  Claude Code (v2, stubbed)
 │   ├── gates.py                 gate(envelope, run) -> GateReport — one check per item verified
 │   ├── changes.py               git diff vs a resolved base → ChangeSet → envelope for the documenter
+│   ├── worktree.py              one git worktree + branch per run → rebase onto source, ready to push
 │   ├── prompts.py, session.py, tracer.py, console.py, git_helper.py, utils.py
 └── adw_data/
     ├── prompt_engineering/{agent}/{system.md,user.md}   tracked — edit prompts HERE, never in the skill
@@ -63,6 +64,8 @@ uv run adws/adw_plan_build.py requests/health.md --adw-id a1b2c3d4
 ```
 
 The prompt is inline text or a file path. `--adw-id` is optional on every ADW: given one, the run joins that session (same dirs, same `context_handoff/`, agents resume their existing context windows); omitted, a fresh id is minted and printed.
+
+Mutating ADWs run isolated by default: an `isolate` code phase cuts worktree `.worktrees/sssf-<adw_id>` on branch `sssf/<adw_id>` from the source branch (`--source-branch`, else `isolation.source_branch`, else `main`), and committing ADWs add a `rebase` code phase before the commit so it lands on a fresh base. `--no-worktree` runs in place. Read-only ADWs (`scout`, `quality`) and `document` stay in place. Nothing is ever pushed — the branch is left rebased and ready (`git worktree list`, then push + `gh pr create --base <source>`).
 
 ## When you have finished reading this
 

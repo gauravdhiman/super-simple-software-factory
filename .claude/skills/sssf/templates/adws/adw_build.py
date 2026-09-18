@@ -5,21 +5,27 @@
 """ADW Build — one-shot implementation workflow.
 
 Usage:
-    uv run adws/adw_build.py "<prompt or path/to/prompt.md>" [--config adws/adw_sssf_config/sssf.config.yaml] [--adw-id a1b2c3d4]
+    uv run adws/adw_build.py "<prompt or path/to/prompt.md>" [--config adws/adw_sssf_config/sssf.config.yaml] [--adw-id a1b2c3d4] [--source-branch main] [--no-worktree]
 
-Phases: engineer(request) -> builder
+Phases: engineer(request) -> git(isolate) -> builder
+
+The code is written in the run's own worktree on branch sssf/<adw_id> and left
+uncommitted there — this workflow never commits, rebases, or pushes, so the
+change stays where the engineer can review it.
 """
 
 import argparse
 import sys
 
-from adw_modules import agents, gates, session, utils
-from adw_modules.data_types import AgentCall, BuildOutput, PhaseParams
+from adw_modules import agents, gates, git_helper, session, utils, worktree
+from adw_modules.data_types import (AgentCall, BuildOutput, IsolationRequest,
+                                    PhaseParams)
 
 REQUIRED_AGENTS = ["builder"]
 
 
-def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw_id: str | None = None) -> int:
+def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw_id: str | None = None,
+         source_branch: str | None = None, no_worktree: bool = False) -> int:
     cfg = agents.load_config(config)
     agents.validate(cfg, REQUIRED_AGENTS)
     run = session.ensure(cfg, adw_id)
@@ -27,6 +33,16 @@ def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw
     with run.phase(PhaseParams(name="request", kind="engineer", owner=run.engineer,
                                description="Capture the incoming ask")) as ph:
         ph.log(input=prompt)
+
+    with run.phase(PhaseParams(name="isolate", kind="code", owner="git",
+                               description="Give this run its own worktree and branch so parallel runs never share a tree")) as ph:
+        info = worktree.ensure(run, IsolationRequest(source_branch=source_branch, disable=no_worktree))
+        if info is None:
+            ph.log(mode="in-place", root=str(run.repo_root))
+        else:
+            ph.log(branch=info.branch, worktree=info.worktree_path,
+                   source=f"{info.source_branch} ({info.onto_ref})",
+                   base=git_helper.short_sha(info.base_commit, root=run.repo_root))
 
     with run.phase(PhaseParams(name="build", kind="agent", owner="builder", retries=1,
                                description="Implement the request")) as ph:
@@ -41,5 +57,10 @@ if __name__ == "__main__":
     parser.add_argument("prompt", help="inline text or a path to a prompt file")
     parser.add_argument("--config", default="adws/adw_sssf_config/sssf.config.yaml")
     parser.add_argument("--adw-id", default=None, help="join or pin an existing session")
+    parser.add_argument("--source-branch", default=None,
+                        help="branch the isolated worktree is cut from (default: isolation.source_branch in config, else main)")
+    parser.add_argument("--no-worktree", action="store_true",
+                        help="run in the current checkout instead of an isolated worktree")
     args = parser.parse_args()
-    sys.exit(main(utils.resolve_prompt(args.prompt), args.config, args.adw_id))
+    sys.exit(main(utils.resolve_prompt(args.prompt), args.config, args.adw_id,
+                  source_branch=args.source_branch, no_worktree=args.no_worktree))

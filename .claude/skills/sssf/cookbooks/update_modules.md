@@ -17,12 +17,13 @@ Extend `adws/adw_modules/` with new low-level logic.
 | `agent_cc.py` | the Claude Code interface — stubbed in v1, lands in v2 |
 | `gates.py` | validation gates over envelope claims |
 | `changes.py` | deterministic change capture: resolve the base ref, `git diff` into `context_handoff/changes.diff`, adapt the `ChangeSet` into an envelope an agent can be handed |
+| `worktree.py` | run isolation: cut worktree + branch from the source ref (`ensure`), rebase the branch onto the latest source (`rebase_onto_source`) — code phases only, never pushed, conflicts abort loudly |
 | `prompts.py` | load system/user prompt refs from config, render placeholders |
 | `session.py` | mint or join `adw_id`, maintain `agent_map.json`, create session dirs incl. `context_handoff/` |
 | `tracer.py` | append JSONL **and** insert every event into `sssf.db` as it happens |
 | `console.py` | the terminal narrative — every line printed also lands in the db as a `log` event, so the UI reads the same story; plain sequential lines, no spinners |
 | `console.py` | the rich stdout reporter — every line printed is ALSO traced as a `log` event (`{message, level}`) so the terminal and the swim-lane UI tell the same story |
-| `git_helper.py` | branch, status, diff, commit — the raw plumbing `changes.py` composes |
+| `git_helper.py` | branch, status, diff, commit, worktree, rebase — the raw plumbing `changes.py` and `worktree.py` compose. Every helper takes an optional `root` (the run's worktree); omitted it is the process cwd |
 | `utils.py` | safe subprocess env, logging, `resolve_prompt` |
 
 ## Never `print()`

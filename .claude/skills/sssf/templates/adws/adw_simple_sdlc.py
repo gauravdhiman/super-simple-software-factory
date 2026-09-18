@@ -5,13 +5,13 @@
 """ADW Simple SDLC — plan, build, test, review, document, committing as it goes.
 
 Usage:
-    uv run adws/adw_simple_sdlc.py "<prompt or path/to/prompt.md>" [--config adws/adw_sssf_config/sssf.config.yaml] [--adw-id a1b2c3d4]
+    uv run adws/adw_simple_sdlc.py "<prompt or path/to/prompt.md>" [--config adws/adw_sssf_config/sssf.config.yaml] [--adw-id a1b2c3d4] [--source-branch main] [--no-worktree]
 
-Phases: engineer(request) -> planner -> git(commit_plan)
+Phases: engineer(request) -> git(isolate) -> planner -> git(commit_plan)
         -> builder -> code(test) [-> builder(fix) -> code(test) ... bounded]
         -> reviewer [-> builder(revise) -> reviewer ... bounded]
         -> code(retest, only if a revision changed code)
-        -> git(commit_build) -> code(changes) -> documenter -> git(commit_docs)
+        -> git(rebase) -> git(commit_build) -> code(changes) -> documenter -> git(commit_docs)
 
 Three commits, three work products, three authors. The plan, the code, and the
 write-up each land in their own commit, and each commit message is the words of
@@ -36,18 +36,23 @@ on the branch. A run that fails verification therefore leaves the plan
 committed and the working tree dirty — the spec is a real artifact either way,
 and the unfinished code stays where the engineer can see it.
 
-The documenter measures against the commit this run STARTED from, not against
-`main`, because by then the run has moved `main` itself. That baseline is
-pinned before the first commit phase and printed in the request phase.
+The run is isolated in its own worktree on branch sssf/<adw_id>, cut from the
+source branch. After verification the branch is rebased onto the latest source
+before the code commit lands — push the branch and open a PR against the
+source when ready. Nothing is pushed automatically.
+
+The documenter measures against the commit this run's worktree STARTED from,
+not against the source branch, because by then the branch has moved. That
+baseline is pinned right after isolation and printed in the isolate phase.
 """
 
 import argparse
 import sys
 
-from adw_modules import agents, changes, gates, git_helper, quality, session, utils
+from adw_modules import agents, changes, gates, git_helper, quality, session, utils, worktree
 from adw_modules.data_types import (AgentCall, BuildOutput, ChangeCapture,
-                                    DocumentOutput, PhaseParams, PlanOutput,
-                                    ReviewOutput)
+                                    DocumentOutput, IsolationRequest,
+                                    PhaseParams, PlanOutput, ReviewOutput)
 
 REQUIRED_AGENTS = ["planner", "builder", "reviewer", "documenter"]
 MAX_FIX_LOOPS = 3
@@ -58,16 +63,16 @@ DOCUMENT_NOTES = ("Read diff_path in full before writing. Document only what the
                   "describes.")
 
 
-def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw_id: str | None = None) -> int:
+def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw_id: str | None = None,
+         source_branch: str | None = None, no_worktree: bool = False) -> int:
     cfg = agents.load_config(config)
     agents.validate(cfg, REQUIRED_AGENTS)
     run = session.ensure(cfg, adw_id)
-    baseline = git_helper.rev("HEAD")     # pinned before this run commits anything
 
     def commit(ph, envelope) -> None:
         """Commit what the preceding phase produced, in that agent's own words."""
         message = envelope.commit_message or f"sssf({run.adw_id}): {envelope.summary}"
-        ph.log(sha=git_helper.commit_all(message), message=message)
+        ph.log(sha=git_helper.commit_all(message, root=run.repo_root), message=message)
 
     def record(ph, result) -> None:
         """Log a deterministic block's verdict — the same shape every ADW uses."""
@@ -77,7 +82,18 @@ def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw
 
     with run.phase(PhaseParams(name="request", kind="engineer", owner=run.engineer,
                                description="Capture the incoming ask")) as ph:
-        ph.log(input=prompt, baseline=git_helper.short_sha(baseline))
+        ph.log(input=prompt)
+
+    with run.phase(PhaseParams(name="isolate", kind="code", owner="git",
+                               description="Give this run its own worktree and branch so parallel runs never share a tree")) as ph:
+        info = worktree.ensure(run, IsolationRequest(source_branch=source_branch, disable=no_worktree))
+        if info is None:
+            ph.log(mode="in-place", root=str(run.repo_root))
+        else:
+            ph.log(branch=info.branch, worktree=info.worktree_path,
+                   source=f"{info.source_branch} ({info.onto_ref})",
+                   base=git_helper.short_sha(info.base_commit, root=run.repo_root))
+    baseline = git_helper.rev("HEAD", root=run.repo_root)  # pinned after isolation, before this run commits anything
 
     with run.phase(PhaseParams(name="plan", kind="agent", owner="planner",
                                description="Turn the request into an implementable plan")) as ph:
@@ -143,6 +159,12 @@ def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw
     verified = (test is not None and test.passed
                 and review is not None and review.approved)
     if verified:
+        if run.isolation is not None:
+            with run.phase(PhaseParams(name="rebase", kind="code", owner="git",
+                                       description="Rebase this run's branch onto the latest source so the code commit lands on a fresh base")) as ph:
+                result = worktree.rebase_onto_source(run)
+                ph.log(strategy=result.strategy, onto=result.onto_ref,
+                       base=f"{result.from_commit[:7]} -> {result.to_commit[:7]}")
         with run.phase(PhaseParams(name="commit_build", kind="code", owner="git",
                                    description="Land the code only now: green suite, approved review")) as ph:
             commit(ph, build)
@@ -163,7 +185,8 @@ def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw
         with run.phase(PhaseParams(name="document", kind="agent", owner="documenter", retries=1,
                                    description="Write up the completed change")) as ph:
             document = ph.call(AgentCall(output_type=DocumentOutput, prompt=prompt,
-                                         previous=changes.as_envelope(changeset, DOCUMENT_NOTES),
+                                         previous=changes.as_envelope(changeset, DOCUMENT_NOTES,
+                                                                      root=run.repo_root),
                                          gates=[gates.artifacts_exist, gates.files_non_empty]))
 
         with run.phase(PhaseParams(name="commit_docs", kind="code", owner="git",
@@ -179,5 +202,10 @@ if __name__ == "__main__":
     parser.add_argument("prompt", help="inline text or a path to a prompt file")
     parser.add_argument("--config", default="adws/adw_sssf_config/sssf.config.yaml")
     parser.add_argument("--adw-id", default=None, help="join or pin an existing session")
+    parser.add_argument("--source-branch", default=None,
+                        help="branch the isolated worktree is cut from (default: isolation.source_branch in config, else main)")
+    parser.add_argument("--no-worktree", action="store_true",
+                        help="run in the current checkout instead of an isolated worktree")
     args = parser.parse_args()
-    sys.exit(main(utils.resolve_prompt(args.prompt), args.config, args.adw_id))
+    sys.exit(main(utils.resolve_prompt(args.prompt), args.config, args.adw_id,
+                  source_branch=args.source_branch, no_worktree=args.no_worktree))

@@ -75,6 +75,19 @@ phases ADW_ID:
 tail ADW_ID:
     @sqlite3 {{db}} "select rowid, type, name, started_at from events where adw_id='{{ADW_ID}}' order by rowid desc limit 25;"
 
+# ── isolated runs ─────────────────────────────────────────────────────────
+# Mutating workflows run in their own worktree on branch sssf/<adw_id>
+# (--source-branch picks the base, --no-worktree runs in place).
+# The branch is left rebased and ready — push it and open a PR when happy.
+
+# every worktree and the branch it holds
+worktrees:
+    @git worktree list
+
+# drop stale worktree metadata (safe: only prunes entries whose dir is gone)
+worktree-prune:
+    @git worktree prune -v
+
 # what a run has alive right now, with pids: just procs <adw_id>
 procs ADW_ID:
     @sqlite3 {{db}} "select kind, name, pid, command, started_at from processes where adw_id='{{ADW_ID}}' and ended_at is null order by id;"

@@ -24,10 +24,24 @@ def _size(path: Path) -> str:
     return f"{n}B" if n < 1024 else f"{n / 1024:.1f}KB"
 
 
+def _repo_path(run, value: str) -> Path:
+    """Anchor a repo-relative envelope path at the run's worktree.
+
+    Agents report paths relative to where they worked (`run.repo_root`); in an
+    isolated run that is the worktree, not the process cwd. Absolute paths pass
+    through untouched, and a run without a repo_root keeps the old behaviour.
+    """
+    p = Path(value)
+    if p.is_absolute():
+        return p
+    root = getattr(run, "repo_root", None)
+    return (Path(root) / p) if root else p
+
+
 def artifacts_exist(envelope: EnvelopeBase, run) -> GateReport:
     report = GateReport()
     for a in envelope.artifacts:
-        p = Path(a)
+        p = _repo_path(run, a)
         report.check(a, p.exists(),
                      f"exists, {_size(p)}" if p.exists() else "declared artifact does not exist")
     return report
@@ -36,7 +50,7 @@ def artifacts_exist(envelope: EnvelopeBase, run) -> GateReport:
 def files_non_empty(envelope: EnvelopeBase, run) -> GateReport:
     report = GateReport()
     for a in envelope.artifacts:
-        p = Path(a)
+        p = _repo_path(run, a)
         if not (p.exists() and p.is_file()):
             continue                       # existence is artifacts_exist's job
         empty = p.stat().st_size == 0
@@ -47,7 +61,7 @@ def files_non_empty(envelope: EnvelopeBase, run) -> GateReport:
 def json_parses(envelope: EnvelopeBase, run) -> GateReport:
     report = GateReport()
     for a in envelope.artifacts:
-        p = Path(a)
+        p = _repo_path(run, a)
         if p.suffix != ".json" or not p.exists():
             continue
         try:
@@ -62,7 +76,7 @@ def diff_matches_claims(envelope: EnvelopeBase, run) -> GateReport:
     """Every file claimed changed must exist on disk."""
     report = GateReport()
     for f in getattr(envelope, "changed_files", []):
-        p = Path(f)
+        p = _repo_path(run, f)
         report.check(f, p.exists(),
                      f"exists, {_size(p)}" if p.exists() else "claimed changed file does not exist")
     return report
@@ -98,7 +112,8 @@ def verdict_consistent(envelope: EnvelopeBase, run) -> GateReport:
 def tests_pass(command: str):
     """Gate factory: the given shell command must exit 0."""
     def gate(envelope: EnvelopeBase, run) -> GateReport:
-        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        result = subprocess.run(command, shell=True, capture_output=True, text=True,
+                                cwd=getattr(run, "repo_root", None))
         ok = result.returncode == 0
         note = f"exit {result.returncode}"
         if not ok:

@@ -343,9 +343,57 @@ class ObservabilityConfig(BaseModel):
     poll_ms: int = 500
 
 
+# ── Run isolation (one git worktree + branch per run) ────────────────────────
+
+class IsolationConfig(BaseModel):
+    """Where isolated runs live and what they branch from.
+
+    An isolated run gets its own worktree at `<repo>/<worktree_dir>/sssf-<adw_id>`
+    on a fresh branch `<branch_prefix><adw_id>`, cut from `source_branch`. The
+    branch is what makes a later PR trivial: push it and open the PR against
+    the source branch. Nothing is ever pushed automatically.
+    """
+
+    enabled: bool = True              # False = every ADW runs in place, as before
+    source_branch: str = "main"       # the ref `--source-branch` overrides per run
+    worktree_dir: str = ".worktrees"  # relative to the repo root; gitignored
+    branch_prefix: str = "sssf/"      # branch per run: sssf/<adw_id>
+
+
+class IsolationRequest(BaseModel):
+    """Everything isolation.ensure() needs. Passed as one object, never loose params."""
+
+    source_branch: Optional[str] = None   # CLI --source-branch; None = resolve
+    disable: bool = False                 # CLI --no-worktree
+
+
+class IsolationInfo(BaseModel):
+    """The worktree a run owns. Persisted to isolation.json for joined runs."""
+
+    adw_id: str
+    branch: str                       # e.g. sssf/a1b2c3d4
+    worktree_path: str                # absolute path of the worktree
+    source_branch: str                # e.g. main
+    onto_ref: str                     # what the branch was cut / rebased onto
+    base_commit: str                  # full sha of onto_ref at creation
+    reused: bool = False              # True when a joined run re-attached
+
+
+class RebaseResult(BaseModel):
+    """What rebase_onto_source() did. The branch is never force-pushed and
+    conflicts are never auto-resolved — a conflict aborts and fails the phase."""
+
+    rebased: bool
+    strategy: str                     # already-current | fast-forward | rebase | rebase-with-stash
+    onto_ref: str                     # e.g. origin/main
+    from_commit: str = ""
+    to_commit: str = ""
+
+
 class SSSFConfig(BaseModel):
     defaults: ConfigDefaults = Field(default_factory=ConfigDefaults)
     observability: ObservabilityConfig = Field(default_factory=ObservabilityConfig)
+    isolation: IsolationConfig = Field(default_factory=IsolationConfig)
     agents: list[AgentConfig] = Field(default_factory=list)
 
 

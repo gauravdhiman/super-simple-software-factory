@@ -121,7 +121,11 @@ def execute(run, phase: Phase, call: AgentCall) -> EnvelopeBase:
             session_dir=str((agent_dir / "pi_sessions").resolve()),
             raw_output_path=str((agent_dir / "raw_output.jsonl").resolve()),
             tools=agent.tools,
-            extensions=agent.harness_engineering,
+            # absolute: pi resolves -e against ITS cwd (the worktree), while the
+            # config paths are written against the launching repo.
+            extensions=[str((Path(e) if Path(e).is_absolute()
+                              else Path.cwd() / e).resolve())
+                        for e in agent.harness_engineering],
             cwd=str(run.repo_root),
         )
         result = agent_pi.run(

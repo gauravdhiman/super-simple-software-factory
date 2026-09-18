@@ -36,6 +36,12 @@ observability:
   db: adws/adw_data/sssf.db        # tracer writes here directly; the UI polls it
   poll_ms: 500                     # visualizer live-poll cadence
 
+isolation:
+  enabled: true                    # false = every ADW runs in place, as before v1
+  source_branch: main              # the ref new worktrees are cut from; --source-branch wins per run
+  worktree_dir: .worktrees         # relative to the repo root; gitignored, one dir per run
+  branch_prefix: sssf/             # branch per run: sssf/<adw_id> — push it and open a PR when ready
+
 agents:
   - name: planner
     model: fireworks/accounts/fireworks/models/kimi-k3

@@ -25,7 +25,18 @@ A code phase does its work in the block body and logs what it did. The commit ph
         ph.log(sha=git_helper.commit_all(message), message=message)
 ```
 
-`commit_message` is a field on `PlanOutput`, `BuildOutput`, and `DocumentOutput` that the agent fills in **for its own work product**, so always pair it with a fallback — it defaults to empty. `commit_all` raises if the cwd is not a git repo or nothing changed, which fails the phase rather than committing nothing. A chain that commits more than once (`adw_simple_sdlc.py`) commits each product with its own author's message.
+`commit_message` is a field on `PlanOutput`, `BuildOutput`, and `DocumentOutput` that the agent fills in **for its own work product**, so always pair it with a fallback — it defaults to empty. `commit_all` raises if the cwd is not a git repo or nothing changed, which fails the phase rather than committing nothing. A chain that commits more than once (`adw_simple_sdlc.py`) commits each product with its own author's message. In an isolated run pass the worktree explicitly — `git_helper.commit_all(message, root=run.repo_root)` — and put a `rebase` code phase before the commit so it lands on a fresh base:
+
+```python
+    if run.isolation is not None:
+        with run.phase(PhaseParams(name="rebase", kind="code", owner="git",
+                                   description="Rebase this run's branch onto the latest source so the commit lands on a fresh base")) as ph:
+            result = worktree.rebase_onto_source(run)
+            ph.log(strategy=result.strategy, onto=result.onto_ref,
+                   base=f"{result.from_commit[:7]} -> {result.to_commit[:7]}")
+```
+
+`rebase_onto_source` fetches the source, moves the branch (fast-forward, rebase, or stash-rebase-pop for a dirty tree), and never force-updates or auto-resolves: a conflict aborts with the branch untouched and fails the phase with the recovery commands. Guard it with `if run.isolation is not None` — a `--no-worktree` run has no branch to move. Workflows without a commit phase get no rebase phase: there is nothing to land, and the uncommitted work stays in the worktree for the engineer.
 
 ## Remove a phase
 
