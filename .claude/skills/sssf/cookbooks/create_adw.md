@@ -11,7 +11,7 @@ Answer four questions, in order:
 | Agent | Use when | Output type | Typical gates |
 |---|---|---|---|
 | `scout` | you need to FIND something first — read-only recon | `ScoutOutput` | `artifacts_exist` |
-| `planner` | the work needs a plan before code changes | `PlanOutput` | `artifacts_exist`, `files_non_empty` |
+| `planner` | the work needs a plan before code changes | `PlanOutput` | `artifacts_exist`, `files_non_empty`, `plan_declares_artifacts`, `plan_summary_present`, `plan_handoff_present` |
 | `builder` | code must change | `BuildOutput` | `diff_matches_claims` |
 | `reviewer` | the change must be confirmed to BE what was asked for | `ReviewOutput` | `artifacts_exist`, `verdict_consistent` |
 | *(no tester)* | verifying that it RUNS is a `kind="code"` phase over `quality.py`, not an agent | `QualityResult` → `as_envelope` | the exit code is the check |
