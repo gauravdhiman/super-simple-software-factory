@@ -167,6 +167,45 @@ def ensure(run, request: IsolationRequest) -> IsolationInfo | None:
     return info
 
 
+def log_result(ph, run, info, request: IsolationRequest) -> None:
+    """One unmistakable line saying what the isolate phase decided.
+
+    The phase description cannot know the outcome — it is fixed before
+    ensure() runs — so the outcome rides this log line instead: created,
+    re-attached, or in place, and when in place, exactly why (the flag, a
+    read-only agent, or config). Structured keys ride along for the trace;
+    `outcome` is the sentence the terminal shows.
+    """
+    if info is None:
+        if not run.cfg.isolation.enabled:
+            why = "isolation.enabled is false in sssf.config.yaml"
+        elif request.reason:
+            why = request.reason
+        elif request.disable:
+            why = "--no-worktree passed"
+        else:
+            why = "isolation did not apply"
+        ph.log(outcome=f"in place: no worktree created ({why})",
+               root=str(run.repo_root))
+        return
+    if info.recreated:
+        ph.log(outcome=f"worktree recreated at {info.worktree_path} "
+                       f"on branch {info.branch}",
+               branch=info.branch, worktree=info.worktree_path,
+               source=f"{info.source_branch} ({info.onto_ref})")
+    elif info.reused:
+        ph.log(outcome=f"worktree reused at {info.worktree_path} "
+                       f"on branch {info.branch} (joined run)",
+               branch=info.branch, worktree=info.worktree_path,
+               source=f"{info.source_branch} ({info.onto_ref})")
+    else:
+        ph.log(outcome=f"worktree created at {info.worktree_path} "
+                       f"on branch {info.branch} from {info.source_branch} "
+                       f"({info.onto_ref}) — parallel runs cannot share a tree",
+               branch=info.branch, worktree=info.worktree_path,
+               source=f"{info.source_branch} ({info.onto_ref})")
+
+
 def rebase_onto_source(run) -> RebaseResult:
     """Rebase this run's branch onto the latest source, safely.
 
