@@ -18,6 +18,8 @@ Extend `adws/adw_modules/` with new low-level logic.
 | `gates.py` | validation gates over envelope claims |
 | `changes.py` | deterministic change capture: resolve the base ref, `git diff` into `context_handoff/changes.diff`, adapt the `ChangeSet` into an envelope an agent can be handed |
 | `worktree.py` | run isolation: cut worktree + branch from the source ref (`ensure`), rebase the branch onto the latest source (`rebase_onto_source`) — code phases only, never pushed, conflicts abort loudly |
+| `handoff.py` | sealed handoffs: fingerprint artifacts after the producing phase (`seal_artifacts`), refuse the consuming phase on drift (`verify_artifacts`) |
+| `manifest.py` | run manifest: curated summary (phases, commits, branch, seals) to `manifest.json` + `sessions.manifest_json`, built in `run.finish()` — never fails the run |
 | `prompts.py` | load system/user prompt refs from config, render placeholders |
 | `session.py` | mint or join `adw_id`, maintain `agent_map.json`, create session dirs incl. `context_handoff/` |
 | `tracer.py` | append JSONL **and** insert every event into `sssf.db` as it happens |

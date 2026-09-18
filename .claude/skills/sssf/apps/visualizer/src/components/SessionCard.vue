@@ -199,6 +199,12 @@ const hiddenRowCount = computed(() =>
     </button>
     <span class="card-id">{{ session.adw_id }}</span>
     <span class="card-adw" :title="session.adw_name ?? ''">{{ session.adw_name ?? '—' }}</span>
+    <span
+      v-if="session.branch"
+      class="card-branch"
+      :title="`worktree ${session.worktree_path ?? ''} · source ${session.source_branch ?? ''}`"
+      >⎇ {{ session.branch }}</span
+    >
     <span class="card-req" :title="session.request ?? ''">{{ session.request }}</span>
 
     <div v-if="rows.length" class="tl">
@@ -337,6 +343,16 @@ const hiddenRowCount = computed(() =>
   font-family: var(--mono);
   font-size: 16px;
   color: var(--cyan);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-branch {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 16px;
+  color: var(--dim);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

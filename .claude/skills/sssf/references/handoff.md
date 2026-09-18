@@ -134,6 +134,9 @@ The `## Report` section shows the exact JSON shape of the declared output type �
 adws/adw_data/sessions/{adw_id}/
 ├── agent_map.json          agent name → coding-agent session_id + model
 ├── context_handoff/        the ONE place agents write files for the agents that follow
+├── isolation.json          the run's worktree + branch (absent when run in place)
+├── handoff_{label}.json    fingerprints of a sealed handoff (e.g. handoff_plan.json)
+├── manifest.json           the run's curated summary, written at finish
 └── {agent_name}/
     ├── prompts/            exact prompts sent (system.md + user.md), saved before execution
     ├── pi_sessions/        pi's own session state for this agent
@@ -159,3 +162,11 @@ This map is the key that lets a later ADW rejoin each agent's **existing context
 The map records the model each session was created with. If config drift changes an agent's model, that agent starts a **fresh** session and the map is updated — never a bad resume. `agent_sessions` in `sssf.db` is the queryable mirror of this file.
 
 **Files are the raw record; the db is the queryable mirror.** Losing `sssf.db` loses nothing that can't be rebuilt from `raw_output.jsonl`, `envelope.json`, and `agent_map.json`.
+
+## Sealed handoffs
+
+Envelopes carry claims; files carry bytes, and bytes can move between the phase that wrote them and the phase that reads them — a commit, a rebase, a joined run days later, a parallel run in the same repo. A builder implementing drifted bytes builds an unreviewed spec.
+
+`handoff.seal_artifacts(run, label, artifacts)` fingerprints every artifact (sha256, repo-relative keys) right after the producing phase and persists the seal as `handoff_{label}.json`. `handoff.verify_artifacts(run, label)` re-hashes right before the consuming phase and raises — failing the phase — naming every changed or vanished file. Added files never violate a seal; only the sealed bytes are protected. The sidecar survives across processes, so a later ADW joining under the same `--adw-id` verifies against the same seal.
+
+In the starter chains this is two code phases around the plan→build edge: `seal_plan` after `plan`, `verify_handoff` before `build` (see `adw_plan_build.py`). The seal digest rides both phases' log events, and the manifest records every seal, so the trace and the UI show what was proven, not just what was claimed.

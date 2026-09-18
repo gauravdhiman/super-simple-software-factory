@@ -41,6 +41,12 @@ export interface Session {
   total_cost: number | null;
   /** 1 once archived out of the review list. Review state, not run state. */
   archived: number | null;
+  /** Isolation — null when the run worked in place, or the db predates the columns. */
+  branch: string | null;
+  worktree_path: string | null;
+  source_branch: string | null;
+  /** Curated run summary written at finish; null until then, or on old dbs. */
+  manifest_json: string | null;
 }
 
 /**

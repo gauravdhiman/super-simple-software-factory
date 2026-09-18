@@ -96,7 +96,11 @@ MIGRATIONS = [("agent_sessions", "color", "TEXT"),
               ("sessions", "adw_name", "TEXT"),
               ("agent_sessions", "context_tokens", "INTEGER"),
               ("agent_sessions", "context_window", "INTEGER"),
-              ("sessions", "archived", "INTEGER DEFAULT 0")]
+              ("sessions", "archived", "INTEGER DEFAULT 0"),
+              ("sessions", "branch", "TEXT"),
+              ("sessions", "worktree_path", "TEXT"),
+              ("sessions", "source_branch", "TEXT"),
+              ("sessions", "manifest_json", "TEXT")]
 
 
 class Tracer:
@@ -169,6 +173,52 @@ class Tracer:
             "UPDATE sessions SET total_tokens=total_tokens+?, total_cost=total_cost+? WHERE adw_id=?",
             (tokens, cost, adw_id),
         )
+
+    def session_isolation(self, adw_id: str, branch: str,
+                          worktree_path: str, source_branch: str) -> None:
+        """Record where this run works — the worktree its branch lives in."""
+        self.conn.execute(
+            "UPDATE sessions SET branch=?, worktree_path=?, source_branch=? WHERE adw_id=?",
+            (branch, worktree_path, source_branch, adw_id),
+        )
+
+    def session_manifest(self, adw_id: str, manifest_json: str) -> None:
+        """Store the run's curated summary beside the session row (the file in
+        the session dir stays the raw record)."""
+        self.conn.execute(
+            "UPDATE sessions SET manifest_json=? WHERE adw_id=?",
+            (manifest_json, adw_id),
+        )
+
+    def session_row(self, adw_id: str) -> dict:
+        """The session row as a dict, for readers that summarize a run."""
+        row = self.conn.execute(
+            "SELECT adw_id, adw_name, request, status, engineer, started_at, ended_at,"
+            " total_tokens, total_cost FROM sessions WHERE adw_id=?",
+            (adw_id,)).fetchone()
+        if not row:
+            return {}
+        return dict(zip(["adw_id", "adw_name", "request", "status", "engineer",
+                         "started_at", "ended_at", "total_tokens", "total_cost"], row))
+
+    def log_payloads(self, adw_id: str, type: str) -> list[tuple[str, str, dict]]:
+        """(phase_id, name, payload) for every event of one type, oldest first.
+
+        Curated readers (the manifest) use this instead of re-parsing the
+        JSONL: one query, parsed payloads, no file handling.
+        """
+        rows = self.conn.execute(
+            "SELECT phase_id, name, payload_json FROM events"
+            " WHERE adw_id=? AND type=? ORDER BY rowid",
+            (adw_id, type)).fetchall()
+        out = []
+        for phase_id, name, payload_json in rows:
+            try:
+                payload = json.loads(payload_json or "{}")
+            except ValueError:
+                payload = {}
+            out.append((phase_id or "", name or "", payload))
+        return out
 
     # ── processes (adw_id → pid, so a hung run can be found and killed) ─────
     def process_start(self, adw_id: str, kind: str, name: str, pid: int,
