@@ -42,7 +42,7 @@ agents:
 
 | Field | Type | Meaning |
 |---|---|---|
-| `coding_agent` | `pi` \| `claude_code` \| `opencode` \| `codex` \| `muse` \| `omp` | Which interface runs the agent. `pi`, `muse`, `opencode`, and `codex` are implemented; every other value is schema-valid and resolves through `harness.py`, failing validation with a clear reason until its `agent_<name>.py` adapter lands. Auth is never the factory's business — each CLI uses whatever the operator configured (subscription or keys). |
+| `coding_agent` | `pi` \| `claude_code` \| `opencode` \| `codex` \| `muse` \| `omp` | Which interface runs the agent. `pi`, `muse`, `opencode`, `codex`, and `omp` are implemented; every other value is schema-valid and resolves through `harness.py`, failing validation with a clear reason until its `agent_<name>.py` adapter lands. Auth is never the factory's business — each CLI uses whatever the operator configured (subscription or keys). |
 | `model` | string | Model id. For Pi, any id registered in `~/.pi/agent/models.json`. Default `gemini-3.6-flash`. |
 | `thinking` | enum | Reasoning effort — see below. Default `medium`. |
 | `color` | hex string | Lane color for every agent that does not set its own. Default empty — the visualizer falls back to its own palette. |

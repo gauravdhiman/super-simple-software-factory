@@ -22,7 +22,7 @@ Thinking levels are Pi's reasoning effort: `off | minimal | low | medium | high 
 
 ```yaml
   - name: builder
-    coding_agent: muse            # pi (default) | muse | opencode; more adapters to come
+    coding_agent: muse            # pi (default) | muse | opencode | codex | omp
     model: muse-spark-1.3-contributor
 ```
 
@@ -43,6 +43,14 @@ Four OpenCode specifics: model ids pass through opaquely like Muse, but write th
 ```
 
 Four Codex specifics: model ids pass through opaquely (non-empty is the only check — codex names its own models, e.g. `gpt-5.6-luna`); thinking maps onto codex's effort vocabulary (`off` → `none`, `minimal` → `low`, anything unrecognized → `medium`) because codex fails unknown values instead of ignoring them; there is no tools allowlist, so a `tools:` list is accepted and ignored — the agent runs with `-s workspace-write` (the default observed is read-only, under which builders cannot write) and `-c approval_policy=never` (asks never block headless runs; explicit deny rules still hold, the sandbox stays on, `--dangerously-bypass` is never used), and the repo boundary stays enforced post-hoc by `permissions.py`; usage is real, parsed from `turn.completed`, while cost reads zero because the stream carries none. `CODEX_PATH` overrides the binary when it is not on PATH. `--skip-git-repo-check` is always passed so in-place runs work outside git repos.
+
+```yaml
+  - name: builder
+    coding_agent: omp
+    model: ollama/qwen3.8:27b-mlx   # ALWAYS provider/model-id (see `omp models --json`)
+```
+
+Four OMP specifics: model ids resolve against `omp models --json` like Pi (qualified `provider/id` matches exactly, bare ids must match uniquely, anything else fails validation naming the candidates); thinking passes through OMP's own ladder — already pi-shaped — with unknown values falling back to `medium`; `tools:` is translated into OMP's smaller vocabulary (`find` → `glob`, pi-only names like `ls` dropped — OMP fails the whole run on an unknown `--tools` value, and bash covers the gap), `harness_engineering` passes through (`-e`), and the repo boundary stays enforced post-hoc by `permissions.py` either way; usage and cost are real, folded turn by turn from the stream's pi-shaped `usage` objects, and the context ceiling comes from the catalog. `OMP_PATH` overrides the binary when it is not on PATH. `--session-dir` namespaces factory sessions; resume reuses the full flag set.
 
 ## Recolor an agent's lane
 

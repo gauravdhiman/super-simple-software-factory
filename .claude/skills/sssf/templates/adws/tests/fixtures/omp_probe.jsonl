@@ -1,0 +1,229 @@
+{"type":"session","version":3,"id":"01a0b6ab-9a90-75e9-a48a-dafb9ed6ae1e","timestamp":"2026-09-18T22:38:14.672Z","cwd":"/tmp"}
+{"type":"advisor_cost_changed"}
+{"type":"agent_start"}
+{"type":"turn_start"}
+{"type":"message_start","message":{"role":"user","content":[{"type":"text","text":"Run bash command 'ls /tmp | head -5' and then reply with exactly: tools-ok"}],"attribution":"user","timestamp":1789771094977}}
+{"type":"message_end","message":{"role":"user","content":[{"type":"text","text":"Run bash command 'ls /tmp | head -5' and then reply with exactly: tools-ok"}],"attribution":"user","timestamp":1789771094977}}
+{"type":"message_start","message":{"role":"assistant","content":[{"type":"thinking","thinking":"The user wants"}],"api":"openai-responses","provider":"ollama","model":"qwen3.8:27b-mlx","usage":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"totalTokens":0,"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"total":0}},"stopReason":"stop","timestamp":1789771095021,"responseId":"resp_411616"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_start","contentIndex":0}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"The"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" user"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" wants"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" me"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" to"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" run"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" `"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"ls"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" /"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"tmp"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" |"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" head"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" -"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"5"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"`"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" then"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" reply"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" with"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" exactly"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" \""}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"tools"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"-ok"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" But"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" critical"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" rules"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" say"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" NEVER"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" use"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" shell"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" `"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"ls"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"`"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" head"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" However"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":","}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" user"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" explicitly"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" requested"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" this"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" exact"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" bash"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" command"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" Let"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" me"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" think"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\n\nThe"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" user"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" testing"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" tool"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" invocation"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" The"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" instruction"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" says"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" run"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" bash"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" command"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" '"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"ls"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" /"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"tmp"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" |"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" head"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" -"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"5"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" But"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" my"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" conventions"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" say"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" NEVER"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" use"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" ls"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" or"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" head"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" However"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":","}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" this"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" a"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" direct"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" user"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" request"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" Let"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" me"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" just"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" run"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" it"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" Actually"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" critical"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" rule"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" says"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" \""}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"NE"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"VER"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" use"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" ls"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"/find"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\""}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" for"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" listing"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" directories"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" use"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" head"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"/t"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"ail"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" only"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" when"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" output"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" isn"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'t"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" captured"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" But"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" user"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" explicitly"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" asked"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" for"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" this"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" exact"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" command"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\n\nI"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" think"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" intent"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" here"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" just"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" to"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" verify"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" tools"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" work"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" reply"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" \""}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"tools"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"-ok"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" Let"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" me"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" run"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" command"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" as"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" requested"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" The"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" user"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" wants"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" exactly"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" \""}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"tools"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"-ok"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\""}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" as"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" reply"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" I"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'ll"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" run"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" bash"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" then"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" reply"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" with"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" exactly"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" tools"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"-ok"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_end","contentIndex":0,"content":"The user wants me to run `ls /tmp | head -5` and then reply with exactly \"tools-ok\". But the critical rules say NEVER use shell `ls` and head. However, the user explicitly requested this exact bash command. Let me think.\n\nThe user is testing tool invocation. The instruction says run bash command 'ls /tmp | head -5'. But my conventions say NEVER use ls or head. However, this is a direct user request. Let me just run it. Actually the critical rule says \"NEVER use ls/find\" for listing directories and use head/tail only when output isn't captured. But the user explicitly asked for this exact command.\n\nI think the intent here is just to verify tools work and reply \"tools-ok\". Let me run the command as requested. The user wants exactly \"tools-ok\" as reply. I'll run the bash and then reply with exactly tools-ok."}}
+{"type":"message_update","assistantMessageEvent":{"type":"toolcall_start","contentIndex":1}}
+{"type":"message_update","assistantMessageEvent":{"type":"toolcall_delta","contentIndex":1,"delta":"{\"command\":\"ls /tmp | head -5\",\"i\":\"Listing tmp directory\"}"}}
+{"type":"message_update","assistantMessageEvent":{"type":"toolcall_end","contentIndex":1,"toolCall":{"type":"toolCall","id":"call_lpd30enu|fc_52077_0","name":"bash","arguments":{"command":"ls /tmp | head -5","i":"Listing tmp directory"}}}}
+{"type":"message_end","message":{"role":"assistant","content":[{"type":"thinking","thinking":"The user wants me to run `ls /tmp | head -5` and then reply with exactly \"tools-ok\". But the critical rules say NEVER use shell `ls` and head. However, the user explicitly requested this exact bash command. Let me think.\n\nThe user is testing tool invocation. The instruction says run bash command 'ls /tmp | head -5'. But my conventions say NEVER use ls or head. However, this is a direct user request. Let me just run it. Actually the critical rule says \"NEVER use ls/find\" for listing directories and use head/tail only when output isn't captured. But the user explicitly asked for this exact command.\n\nI think the intent here is just to verify tools work and reply \"tools-ok\". Let me run the command as requested. The user wants exactly \"tools-ok\" as reply. I'll run the bash and then reply with exactly tools-ok.","thinkingSignature":"{\"encrypted_content\":\"The user wants me to run `ls /tmp | head -5` and then reply with exactly \\\"tools-ok\\\". But the critical rules say NEVER use shell `ls` and head. However, the user explicitly requested this exact bash command. Let me think.\\n\\nThe user is testing tool invocation. The instruction says run bash command 'ls /tmp | head -5'. But my conventions say NEVER use ls or head. However, this is a direct user request. Let me just run it. Actually the critical rule says \\\"NEVER use ls/find\\\" for listing directories and use head/tail only when output isn't captured. But the user explicitly asked for this exact command.\\n\\nI think the intent here is just to verify tools work and reply \\\"tools-ok\\\". Let me run the command as requested. The user wants exactly \\\"tools-ok\\\" as reply. I'll run the bash and then reply with exactly tools-ok.\",\"id\":\"rs_66320\",\"summary\":[{\"text\":\"The user wants me to run `ls /tmp | head -5` and then reply with exactly \\\"tools-ok\\\". But the critical rules say NEVER use shell `ls` and head. However, the user explicitly requested this exact bash command. Let me think.\\n\\nThe user is testing tool invocation. The instruction says run bash command 'ls /tmp | head -5'. But my conventions say NEVER use ls or head. However, this is a direct user request. Let me just run it. Actually the critical rule says \\\"NEVER use ls/find\\\" for listing directories and use head/tail only when output isn't captured. But the user explicitly asked for this exact command.\\n\\nI think the intent here is just to verify tools work and reply \\\"tools-ok\\\". Let me run the command as requested. The user wants exactly \\\"tools-ok\\\" as reply. I'll run the bash and then reply with exactly tools-ok.\",\"type\":\"summary_text\"}],\"type\":\"reasoning\"}"},{"type":"toolCall","id":"call_lpd30enu|fc_52077_0","name":"bash","arguments":{"command":"ls /tmp | head -5","i":"Listing tmp directory"},"intent":"Listing tmp directory"}],"api":"openai-responses","provider":"ollama","model":"qwen3.8:27b-mlx","usage":{"input":5993,"output":235,"cacheRead":16383,"cacheWrite":0,"totalTokens":22611,"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"total":0}},"stopReason":"toolUse","timestamp":1789771095021,"responseId":"resp_411616","duration":85086.665333,"ttft":71683.28041699999,"completedAt":1789771180152}}
+{"type":"tool_execution_start","toolCallId":"call_lpd30enu|fc_52077_0","toolName":"bash","args":{"command":"ls /tmp | head -5"},"intent":"Listing tmp directory"}
+{"type":"tool_execution_update","toolCallId":"call_lpd30enu|fc_52077_0","toolName":"bash","args":{"command":"ls /tmp | head -5"},"partialResult":{"content":[{"type":"text","text":"247ai-staging-backend-health.txt\na1-observability-pre-commit\na1-observability-precommit-unrelated-backup\nagent-evals-validation.json\nagents-main.py\n"}],"details":{}}}
+{"type":"tool_execution_update","toolCallId":"call_lpd30enu|fc_52077_0","toolName":"bash","args":{"command":"ls /tmp | head -5"},"partialResult":{"content":[{"type":"text","text":"247ai-staging-backend-health.txt\na1-observability-pre-commit\na1-observability-precommit-unrelated-backup\nagent-evals-validation.json\nagents-main.py\n\n\nWall time: 0.07 seconds"}],"details":{"timeoutSeconds":300,"wallTimeMs":65.73262499998964}}}
+{"type":"tool_execution_end","toolCallId":"call_lpd30enu|fc_52077_0","toolName":"bash","result":{"content":[{"type":"text","text":"247ai-staging-backend-health.txt\na1-observability-pre-commit\na1-observability-precommit-unrelated-backup\nagent-evals-validation.json\nagents-main.py\n\n\nWall time: 0.07 seconds"}],"details":{"timeoutSeconds":300,"wallTimeMs":65.73262499998964}},"isError":false}
+{"type":"message_start","message":{"role":"toolResult","toolCallId":"call_lpd30enu|fc_52077_0","toolName":"bash","content":[{"type":"text","text":"247ai-staging-backend-health.txt\na1-observability-pre-commit\na1-observability-precommit-unrelated-backup\nagent-evals-validation.json\nagents-main.py\n\n\nWall time: 0.07 seconds"}],"details":{"timeoutSeconds":300,"wallTimeMs":65.73262499998964},"isError":false,"timestamp":1789771180232}}
+{"type":"message_end","message":{"role":"toolResult","toolCallId":"call_lpd30enu|fc_52077_0","toolName":"bash","content":[{"type":"text","text":"247ai-staging-backend-health.txt\na1-observability-pre-commit\na1-observability-precommit-unrelated-backup\nagent-evals-validation.json\nagents-main.py\n\n\nWall time: 0.07 seconds"}],"details":{"timeoutSeconds":300,"wallTimeMs":65.73262499998964},"isError":false,"timestamp":1789771180232}}
+{"type":"turn_end","message":{"role":"assistant","content":[{"type":"thinking","thinking":"The user wants me to run `ls /tmp | head -5` and then reply with exactly \"tools-ok\". But the critical rules say NEVER use shell `ls` and head. However, the user explicitly requested this exact bash command. Let me think.\n\nThe user is testing tool invocation. The instruction says run bash command 'ls /tmp | head -5'. But my conventions say NEVER use ls or head. However, this is a direct user request. Let me just run it. Actually the critical rule says \"NEVER use ls/find\" for listing directories and use head/tail only when output isn't captured. But the user explicitly asked for this exact command.\n\nI think the intent here is just to verify tools work and reply \"tools-ok\". Let me run the command as requested. The user wants exactly \"tools-ok\" as reply. I'll run the bash and then reply with exactly tools-ok.","thinkingSignature":"{\"encrypted_content\":\"The user wants me to run `ls /tmp | head -5` and then reply with exactly \\\"tools-ok\\\". But the critical rules say NEVER use shell `ls` and head. However, the user explicitly requested this exact bash command. Let me think.\\n\\nThe user is testing tool invocation. The instruction says run bash command 'ls /tmp | head -5'. But my conventions say NEVER use ls or head. However, this is a direct user request. Let me just run it. Actually the critical rule says \\\"NEVER use ls/find\\\" for listing directories and use head/tail only when output isn't captured. But the user explicitly asked for this exact command.\\n\\nI think the intent here is just to verify tools work and reply \\\"tools-ok\\\". Let me run the command as requested. The user wants exactly \\\"tools-ok\\\" as reply. I'll run the bash and then reply with exactly tools-ok.\",\"id\":\"rs_66320\",\"summary\":[{\"text\":\"The user wants me to run `ls /tmp | head -5` and then reply with exactly \\\"tools-ok\\\". But the critical rules say NEVER use shell `ls` and head. However, the user explicitly requested this exact bash command. Let me think.\\n\\nThe user is testing tool invocation. The instruction says run bash command 'ls /tmp | head -5'. But my conventions say NEVER use ls or head. However, this is a direct user request. Let me just run it. Actually the critical rule says \\\"NEVER use ls/find\\\" for listing directories and use head/tail only when output isn't captured. But the user explicitly asked for this exact command.\\n\\nI think the intent here is just to verify tools work and reply \\\"tools-ok\\\". Let me run the command as requested. The user wants exactly \\\"tools-ok\\\" as reply. I'll run the bash and then reply with exactly tools-ok.\",\"type\":\"summary_text\"}],\"type\":\"reasoning\"}"},{"type":"toolCall","id":"call_lpd30enu|fc_52077_0","name":"bash","arguments":{"command":"ls /tmp | head -5","i":"Listing tmp directory"},"intent":"Listing tmp directory"}],"api":"openai-responses","provider":"ollama","model":"qwen3.8:27b-mlx","usage":{"input":5993,"output":235,"cacheRead":16383,"cacheWrite":0,"totalTokens":22611,"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"total":0}},"stopReason":"toolUse","timestamp":1789771095021,"responseId":"resp_411616","duration":85086.665333,"ttft":71683.28041699999},"toolResults":[{"role":"toolResult","toolCallId":"call_lpd30enu|fc_52077_0","toolName":"bash","content":[{"type":"text","text":"247ai-staging-backend-health.txt\na1-observability-pre-commit\na1-observability-precommit-unrelated-backup\nagent-evals-validation.json\nagents-main.py\n\n\nWall time: 0.07 seconds"}],"details":{"timeoutSeconds":300,"wallTimeMs":65.73262499998964},"isError":false,"timestamp":1789771180232}]}
+{"type":"turn_start"}
+{"type":"message_start","message":{"role":"assistant","content":[{"type":"thinking","thinking":"The command ran. Now"}],"api":"openai-responses","provider":"ollama","model":"qwen3.8:27b-mlx","usage":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"totalTokens":0,"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"total":0}},"stopReason":"stop","timestamp":1789771180267,"responseId":"resp_189323"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_start","contentIndex":0}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"The"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" command"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" ran"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" Now"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" reply"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" with"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" exactly"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" \""}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"tools"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"-ok"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_end","contentIndex":0,"content":"The command ran. Now reply with exactly \"tools-ok\"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"text_start","contentIndex":1}}
+{"type":"message_update","assistantMessageEvent":{"type":"text_delta","contentIndex":1,"delta":"tools"}}
+{"type":"message_update","assistantMessageEvent":{"type":"text_delta","contentIndex":1,"delta":"-ok"}}
+{"type":"message_update","assistantMessageEvent":{"type":"text_end","contentIndex":1,"content":"tools-ok"}}
+{"type":"message_end","message":{"role":"assistant","content":[{"type":"thinking","thinking":"The command ran. Now reply with exactly \"tools-ok\".","thinkingSignature":"{\"encrypted_content\":\"The command ran. Now reply with exactly \\\"tools-ok\\\".\",\"id\":\"rs_215589\",\"summary\":[{\"text\":\"The command ran. Now reply with exactly \\\"tools-ok\\\".\",\"type\":\"summary_text\"}],\"type\":\"reasoning\"}"},{"type":"text","text":"tools-ok","textSignature":"{\"v\":1,\"id\":\"msg_955331\"}"}],"api":"openai-responses","provider":"ollama","model":"qwen3.8:27b-mlx","usage":{"input":65,"output":17,"cacheRead":22611,"cacheWrite":0,"totalTokens":22693,"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"total":0}},"stopReason":"stop","timestamp":1789771180267,"responseId":"resp_189323","duration":1694.4948749999894,"ttft":1097.458707999991,"completedAt":1789771181977}}
+{"type":"turn_end","message":{"role":"assistant","content":[{"type":"thinking","thinking":"The command ran. Now reply with exactly \"tools-ok\".","thinkingSignature":"{\"encrypted_content\":\"The command ran. Now reply with exactly \\\"tools-ok\\\".\",\"id\":\"rs_215589\",\"summary\":[{\"text\":\"The command ran. Now reply with exactly \\\"tools-ok\\\".\",\"type\":\"summary_text\"}],\"type\":\"reasoning\"}"},{"type":"text","text":"tools-ok","textSignature":"{\"v\":1,\"id\":\"msg_955331\"}"}],"api":"openai-responses","provider":"ollama","model":"qwen3.8:27b-mlx","usage":{"input":65,"output":17,"cacheRead":22611,"cacheWrite":0,"totalTokens":22693,"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"total":0}},"stopReason":"stop","timestamp":1789771180267,"responseId":"resp_189323","duration":1694.4948749999894,"ttft":1097.458707999991},"toolResults":[]}
+{"type":"agent_end","messages":[{"role":"user","content":[{"type":"text","text":"Run bash command 'ls /tmp | head -5' and then reply with exactly: tools-ok"}],"attribution":"user","timestamp":1789771094977},{"role":"assistant","content":[{"type":"thinking","thinking":"The user wants me to run `ls /tmp | head -5` and then reply with exactly \"tools-ok\". But the critical rules say NEVER use shell `ls` and head. However, the user explicitly requested this exact bash command. Let me think.\n\nThe user is testing tool invocation. The instruction says run bash command 'ls /tmp | head -5'. But my conventions say NEVER use ls or head. However, this is a direct user request. Let me just run it. Actually the critical rule says \"NEVER use ls/find\" for listing directories and use head/tail only when output isn't captured. But the user explicitly asked for this exact command.\n\nI think the intent here is just to verify tools work and reply \"tools-ok\". Let me run the command as requested. The user wants exactly \"tools-ok\" as reply. I'll run the bash and then reply with exactly tools-ok.","thinkingSignature":"{\"encrypted_content\":\"The user wants me to run `ls /tmp | head -5` and then reply with exactly \\\"tools-ok\\\". But the critical rules say NEVER use shell `ls` and head. However, the user explicitly requested this exact bash command. Let me think.\\n\\nThe user is testing tool invocation. The instruction says run bash command 'ls /tmp | head -5'. But my conventions say NEVER use ls or head. However, this is a direct user request. Let me just run it. Actually the critical rule says \\\"NEVER use ls/find\\\" for listing directories and use head/tail only when output isn't captured. But the user explicitly asked for this exact command.\\n\\nI think the intent here is just to verify tools work and reply \\\"tools-ok\\\". Let me run the command as requested. The user wants exactly \\\"tools-ok\\\" as reply. I'll run the bash and then reply with exactly tools-ok.\",\"id\":\"rs_66320\",\"summary\":[{\"text\":\"The user wants me to run `ls /tmp | head -5` and then reply with exactly \\\"tools-ok\\\". But the critical rules say NEVER use shell `ls` and head. However, the user explicitly requested this exact bash command. Let me think.\\n\\nThe user is testing tool invocation. The instruction says run bash command 'ls /tmp | head -5'. But my conventions say NEVER use ls or head. However, this is a direct user request. Let me just run it. Actually the critical rule says \\\"NEVER use ls/find\\\" for listing directories and use head/tail only when output isn't captured. But the user explicitly asked for this exact command.\\n\\nI think the intent here is just to verify tools work and reply \\\"tools-ok\\\". Let me run the command as requested. The user wants exactly \\\"tools-ok\\\" as reply. I'll run the bash and then reply with exactly tools-ok.\",\"type\":\"summary_text\"}],\"type\":\"reasoning\"}"},{"type":"toolCall","id":"call_lpd30enu|fc_52077_0","name":"bash","arguments":{"command":"ls /tmp | head -5","i":"Listing tmp directory"},"intent":"Listing tmp directory"}],"api":"openai-responses","provider":"ollama","model":"qwen3.8:27b-mlx","usage":{"input":5993,"output":235,"cacheRead":16383,"cacheWrite":0,"totalTokens":22611,"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"total":0}},"stopReason":"toolUse","timestamp":1789771095021,"responseId":"resp_411616","duration":85086.665333,"ttft":71683.28041699999},{"role":"toolResult","toolCallId":"call_lpd30enu|fc_52077_0","toolName":"bash","content":[{"type":"text","text":"247ai-staging-backend-health.txt\na1-observability-pre-commit\na1-observability-precommit-unrelated-backup\nagent-evals-validation.json\nagents-main.py\n\n\nWall time: 0.07 seconds"}],"details":{"timeoutSeconds":300,"wallTimeMs":65.73262499998964},"isError":false,"timestamp":1789771180232},{"role":"assistant","content":[{"type":"thinking","thinking":"The command ran. Now reply with exactly \"tools-ok\".","thinkingSignature":"{\"encrypted_content\":\"The command ran. Now reply with exactly \\\"tools-ok\\\".\",\"id\":\"rs_215589\",\"summary\":[{\"text\":\"The command ran. Now reply with exactly \\\"tools-ok\\\".\",\"type\":\"summary_text\"}],\"type\":\"reasoning\"}"},{"type":"text","text":"tools-ok","textSignature":"{\"v\":1,\"id\":\"msg_955331\"}"}],"api":"openai-responses","provider":"ollama","model":"qwen3.8:27b-mlx","usage":{"input":65,"output":17,"cacheRead":22611,"cacheWrite":0,"totalTokens":22693,"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"total":0}},"stopReason":"stop","timestamp":1789771180267,"responseId":"resp_189323","duration":1694.4948749999894,"ttft":1097.458707999991}],"isTerminal":true}
