@@ -25,7 +25,7 @@ adws/
 │   ├── data_types.py            AgentCall, PhaseParams, Phase, Envelope + one output type per agent call
 │   ├── agents.py                load_config, validate, resolve entry → interface + model + thinking
 │   ├── runner.py                the Run object: run.phase(PhaseParams) → ph.call(AgentCall)
-│   ├── agent_pi.py              Pi interface   ·   agent_muse.py  Muse   ·   agent_opencode.py  OpenCode   ·   agent_codex.py  Codex   ·   agent_omp.py  OMP   ·   agent_cc.py  Claude Code (stubbed)
+│   ├── agent_pi.py              Pi   ·   agent_muse.py  Muse   ·   agent_opencode.py  OpenCode   ·   agent_codex.py  Codex   ·   agent_omp.py  OMP   ·   agent_cc.py  Claude Code
 │   ├── harness.py               worker-backend contract + dispatch: one adapter per coding_agent value
 │   ├── gates.py                 gate(envelope, run) -> GateReport — one check per item verified
 │   ├── changes.py               git diff vs a resolved base → ChangeSet → envelope for the documenter

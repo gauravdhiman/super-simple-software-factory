@@ -22,7 +22,7 @@ Thinking levels are Pi's reasoning effort: `off | minimal | low | medium | high 
 
 ```yaml
   - name: builder
-    coding_agent: muse            # pi (default) | muse | opencode | codex | omp
+    coding_agent: muse            # pi (default) | muse | opencode | codex | omp | claude_code
     model: muse-spark-1.3-contributor
 ```
 
@@ -51,6 +51,14 @@ Four Codex specifics: model ids pass through opaquely (non-empty is the only che
 ```
 
 Four OMP specifics: model ids resolve against `omp models --json` like Pi (qualified `provider/id` matches exactly, bare ids must match uniquely, anything else fails validation naming the candidates); thinking passes through OMP's own ladder — already pi-shaped — with unknown values falling back to `medium`; `tools:` is translated into OMP's smaller vocabulary (`find` → `glob`, pi-only names like `ls` dropped — OMP fails the whole run on an unknown `--tools` value, and bash covers the gap), `harness_engineering` passes through (`-e`), and the repo boundary stays enforced post-hoc by `permissions.py` either way; usage and cost are real, folded turn by turn from the stream's pi-shaped `usage` objects, and the context ceiling comes from the catalog. `OMP_PATH` overrides the binary when it is not on PATH. `--session-dir` namespaces factory sessions; resume reuses the full flag set.
+
+```yaml
+  - name: builder
+    coding_agent: claude_code
+    model: sonnet   # claude names its own models (sonnet, opus, haiku, full ids)
+```
+
+Four Claude Code specifics: model ids pass through opaquely (non-empty is the only check); thinking maps onto `--effort` (`off`/`minimal` floor to `low` — no quieter rung exists — anything unrecognized → `medium`, never passthrough); `tools:` is translated into Claude's capitalized vocabulary (`bash` → `Bash`, `find` → `Glob`, unmapped names dropped — unknown `--allowedTools` values fail the run); the prompt travels as argv because piped stdin yields empty synthetic turns, and `--verbose` rides every send because stream-json under `-p` refuses to start without it. The agent runs with `--permission-mode bypassPermissions` (prompts must never block headless runs), so `permissions.py` is the enforcement boundary; usage and cost are real, parsed from the terminal `result` event. `CLAUDE_PATH` overrides the binary when it is not on PATH. NOTE: live-verified only through the auth gate so far — the tool-turn shapes are documented, not yet observed; run one `adw_prompt` with a claude worker and confirm green before trusting it on real work.
 
 ## Recolor an agent's lane
 
