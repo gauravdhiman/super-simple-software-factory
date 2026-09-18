@@ -60,7 +60,9 @@ def main(prompt: str, config: str = "adws/adw_sssf_config/sssf.config.yaml", adw
     with run.phase(PhaseParams(name="plan", kind="agent", owner="planner",
                                description="Turn the request into an implementable plan")) as ph:
         plan = ph.call(AgentCall(output_type=PlanOutput, prompt=prompt,
-                                 gates=[gates.artifacts_exist, gates.files_non_empty]))
+                                 gates=[gates.artifacts_exist, gates.files_non_empty,
+                                        gates.plan_declares_artifacts, gates.plan_summary_present,
+                                        gates.plan_handoff_present]))
 
     with run.phase(PhaseParams(name="seal_plan", kind="code", owner="handoff",
                                description="Fingerprint the plan so the build provably implements this exact spec")) as ph:

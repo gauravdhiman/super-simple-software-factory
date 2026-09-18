@@ -113,3 +113,47 @@ def tests_pass(command: str):
         return GateReport().check(command, ok, note)
     gate.__name__ = f"tests_pass({command})"
     return gate
+
+
+# ── Plan gates: a plan must be shaped to build from ──────────────────────────
+#
+# These check the envelope's own contract (see the planner's user.md Report
+# section), never plan quality — that is the reviewer's job, or the
+# engineer's. A missing summary, zero artifacts, or an empty handoff means the
+# planner skipped part of its report, and everything downstream (builder
+# context, commit fallback, next-agent notes) reads that report. Deliberately
+# absent: commit_message presence — it has a designed fallback, so an empty
+# one degrades gracefully instead of failing a good plan.
+
+
+def plan_declares_artifacts(envelope: EnvelopeBase, run) -> GateReport:
+    """The plan left at least one artifact behind — a plan that wrote nothing
+    wrote no plan."""
+    artifacts = list(getattr(envelope, "artifacts", None) or [])
+    return GateReport().check(
+        "artifacts",
+        bool(artifacts),
+        f"{len(artifacts)} declared" if artifacts
+        else "plan declares no artifacts — there is nothing for the builder to implement")
+
+
+def plan_summary_present(envelope: EnvelopeBase, run) -> GateReport:
+    """The one-sentence summary exists — the builder quotes it and the commit
+    message falls back to it."""
+    summary = (getattr(envelope, "summary", None) or "").strip()
+    return GateReport().check(
+        "summary",
+        bool(summary),
+        f"{len(summary)} chars" if summary
+        else "plan declares no summary — say what the plan does in one sentence")
+
+
+def plan_handoff_present(envelope: EnvelopeBase, run) -> GateReport:
+    """The notes for the next agent exist — the chain's only handoff channel
+    besides the artifacts themselves."""
+    notes = (getattr(envelope, "notes_for_next_agent", None) or "").strip()
+    return GateReport().check(
+        "notes_for_next_agent",
+        bool(notes),
+        f"{len(notes)} chars" if notes
+        else "plan names nothing for the next agent — say what the builder must know")
