@@ -7,9 +7,9 @@ const props = defineProps<{ phases: Phase[] }>()
 const ordered = computed(() => props.phases.toSorted((a, b) => (a.seq ?? 0) - (b.seq ?? 0)))
 
 const glyph: Record<string, string> = {
-  success: '●',
-  running: '◐',
-  queued: '○',
+  success: '■',
+  running: '■',
+  queued: '□',
   fail: '✗',
 }
 </script>

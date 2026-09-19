@@ -701,7 +701,9 @@ function selectPhase(p: Phase) {
 }
 
 .run-strip .request {
-  font-size: 17px;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--text);
   max-width: 52ch;
   overflow: hidden;
@@ -718,7 +720,7 @@ function selectPhase(p: Phase) {
 .waterfall {
   margin: 20px 28px;
   border: 1px solid var(--border-soft);
-  border-radius: 16px;
+  border-radius: 0;
   background: var(--surface);
   overflow: hidden;
 }
@@ -839,7 +841,7 @@ function selectPhase(p: Phase) {
 
 .ctx-bar {
   height: 6px;
-  border-radius: 999px;
+  border-radius: 0;
   background: var(--overlay-bg);
   border: 1px solid var(--border-soft);
   overflow: hidden;
@@ -848,7 +850,7 @@ function selectPhase(p: Phase) {
 .ctx-fill {
   display: block;
   height: 100%;
-  border-radius: 999px;
+  border-radius: 0;
   transition: width 300ms ease;
 }
 
@@ -889,7 +891,7 @@ function selectPhase(p: Phase) {
   justify-content: flex-start;
   gap: 4px;
   padding: 10px 12px 16px;
-  border-radius: 10px;
+  border-radius: 0;
   border: 1px solid;
   font-size: 16px;
   color: var(--text);
@@ -977,7 +979,7 @@ function selectPhase(p: Phase) {
   height: 9px;
   background: currentColor;
   opacity: 0.55;
-  border-radius: 1px;
+  border-radius: 0;
 }
 
 .tool-tick.err {

@@ -16,9 +16,9 @@ const { theme, toggle } = useTheme()
         <!-- Inline copy of public/logo.svg (the favicon) so the mark renders
              crisply with no fetch; keep the two in sync. -->
         <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
-          <rect x="4" y="6" width="17" height="5" rx="2.5" fill="#e8b64a" />
-          <rect x="8" y="13.5" width="20" height="5" rx="2.5" fill="#c89bff" />
-          <rect x="4" y="21" width="13" height="5" rx="2.5" fill="#5ad2dd" />
+          <rect x="4" y="6" width="17" height="5" fill="#e8b64a" />
+          <rect x="8" y="13.5" width="20" height="5" fill="#c89bff" />
+          <rect x="4" y="21" width="13" height="5" fill="#5ad2dd" />
         </svg>
         <span class="brand">Super Simple Software Factory</span>
         <span class="sep">›</span>
@@ -128,14 +128,17 @@ const { theme, toggle } = useTheme()
   align-items: center;
   gap: 8px;
   color: var(--dim);
-  font-size: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
 .live-dot {
   width: 9px;
   height: 9px;
-  border-radius: 50%;
+  border-radius: 0;
   background: var(--green);
   box-shadow: 0 0 10px rgba(74, 222, 128, 0.7);
   animation: pulse 1.6s ease-in-out infinite;
@@ -150,7 +153,7 @@ const { theme, toggle } = useTheme()
   margin-left: 14px;
   padding: 0;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 0;
   background: var(--panel);
   color: var(--dim);
   cursor: pointer;

@@ -103,7 +103,7 @@ pre {
   padding: 12px 14px;
   background: var(--panel-3);
   border: 1px solid var(--border-soft);
-  border-radius: 8px;
+  border-radius: 0;
   overflow-x: auto;
   font-family: var(--mono);
   font-size: 16px;
@@ -146,9 +146,10 @@ pre {
   margin: 12px 24px;
   padding: 10px 14px;
   border: 1px solid rgba(255, 111, 103, 0.5);
+  border-left-width: 3px;
   background: rgba(255, 111, 103, 0.1);
   color: var(--red);
-  border-radius: 8px;
+  border-radius: 0;
   font-size: 16px;
 }
 
@@ -197,7 +198,7 @@ pre {
 .md code {
   background: var(--panel-2);
   border: 1px solid var(--border-soft);
-  border-radius: 4px;
+  border-radius: 0;
   padding: 1px 7px;
   font-size: 16px;
 }

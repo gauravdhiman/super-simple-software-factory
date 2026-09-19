@@ -82,10 +82,8 @@ const totalTokens = computed(() =>
 const totalCost = computed(() =>
   ordered.value.reduce((sum, s) => sum + (s.total_cost ?? 0), 0),
 )
-/** Pure-CSS donut: success arc over the track, no chart dependency. */
-const donutStyle = computed(() => ({
-  background: `conic-gradient(var(--green) 0% ${successPct.value}%, var(--border) ${successPct.value}% 100%)`,
-}))
+/** Sharp meter fill — width % drives the bar, no chart dependency. */
+const meterStyle = computed(() => ({ width: `${successPct.value}%` }))
 </script>
 
 <template>
@@ -97,8 +95,9 @@ const donutStyle = computed(() => ({
         <span class="dash-num">{{ ordered.length }}</span>
         <span class="dash-label dim">runs</span>
       </div>
-      <div class="dash-tile">
-        <span class="donut" :style="donutStyle"><span class="donut-hole">{{ successPct }}%</span></span>
+      <div class="dash-tile meter-tile">
+        <span class="dash-num mono">{{ successPct }}%</span>
+        <span class="meter"><span class="meter-fill" :style="meterStyle" /></span>
         <span class="dash-label dim">{{ succeeded }}/{{ ordered.length }} green</span>
       </div>
       <div class="dash-tile">
@@ -177,13 +176,14 @@ const donutStyle = computed(() => ({
   gap: 10px;
   padding: 10px 18px;
   border: 1px solid var(--border-soft);
-  border-radius: 14px;
+  border-radius: 0;
   background: var(--surface);
 }
 
 .dash-num {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .dash-num.mono {
@@ -192,30 +192,29 @@ const donutStyle = computed(() => ({
 }
 
 .dash-label {
-  font-size: 15px;
-}
-
-.donut {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  flex: none;
-}
-
-.donut-hole {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--panel);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
-  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.meter-tile {
+  min-width: 230px;
+}
+
+.meter {
+  display: block;
+  flex: 1;
+  height: 8px;
+  background: var(--panel-2);
+  border: 1px solid var(--border-soft);
+}
+
+.meter-fill {
+  display: block;
+  height: 100%;
+  background: var(--green);
+  transition: width 0.3s ease;
 }
 
 .view-toggle {
@@ -225,7 +224,7 @@ const donutStyle = computed(() => ({
   padding: 3px;
   gap: 2px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 0;
   background: var(--panel);
 }
 
@@ -235,11 +234,14 @@ const donutStyle = computed(() => ({
   gap: 7px;
   padding: 7px 16px;
   border: 0;
-  border-radius: 9px;
+  border-radius: 0;
   background: transparent;
   color: var(--dim);
   font-family: inherit;
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   cursor: pointer;
   transition:
     color 0.15s ease,
@@ -251,9 +253,8 @@ const donutStyle = computed(() => ({
 }
 
 .view-toggle button.active {
-  background: var(--panel-2);
-  color: var(--text);
-  box-shadow: inset 0 0 0 1px var(--border-soft);
+  background: var(--text);
+  color: var(--panel);
 }
 
 .rows {

@@ -90,7 +90,8 @@ const total = computed(() => (props.session.phases ?? []).length)
   gap: 16px;
   padding: 14px 18px;
   border: 1px solid var(--border-soft);
-  border-radius: 14px;
+  border-left-width: 3px;
+  border-radius: 0;
   background: var(--surface);
   color: var(--text);
   cursor: pointer;
@@ -108,11 +109,15 @@ const total = computed(() => (props.session.phases ?? []).length)
 }
 
 .row.running {
-  border-color: rgba(108, 182, 255, 0.55);
+  border-left-color: var(--blue);
 }
 
 .row.fail {
-  border-color: rgba(255, 111, 103, 0.4);
+  border-left-color: var(--red);
+}
+
+.row.success {
+  border-left-color: var(--green);
 }
 
 .rank {
@@ -158,7 +163,7 @@ const total = computed(() => (props.session.phases ?? []).length)
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 1px 9px;
-  border-radius: 999px;
+  border-radius: 0;
   color: var(--green);
   border: 1px solid currentColor;
 }
@@ -206,7 +211,7 @@ const total = computed(() => (props.session.phases ?? []).length)
   height: 28px;
   padding: 0;
   border: 0;
-  border-radius: 8px;
+  border-radius: 0;
   background: transparent;
   color: var(--dim);
   font-family: inherit;
