@@ -1,4 +1,5 @@
 :root {
+  color-scheme: dark;
   --bg: #06080f;
   --panel: #0d1119;
   --panel-2: #131a26;
@@ -15,12 +16,45 @@
   --purple: #c89bff;
   --cyan: #5ad2dd;
   --violet: #94a3ff;
+  --code-ink: #cfdded;
   /* Play carries the UI voice; mono is reserved for data (ids, times, code). */
   --sans: 'Play', 'Helvetica Neue', system-ui, sans-serif;
   --mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Monaco, 'Cascadia Mono',
     'Roboto Mono', monospace;
   /* Surface gradient shared by cards and panels — one recipe, everywhere. */
   --surface: linear-gradient(180deg, #10141f 0%, #0b0f18 100%);
+  --chip-bg: rgba(19, 26, 38, 0.6);
+  --overlay-bg: rgba(6, 8, 15, 0.55);
+  --topbar-bg: rgba(11, 15, 24, 0.72);
+  --shadow: 0 10px 34px rgba(148, 163, 255, 0.12);
+}
+
+/* Day theme — same voice, paper instead of space. Accents deepen so status
+   colors keep their meaning at full brightness. */
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f4f2ec;
+  --panel: #ffffff;
+  --panel-2: #eef0f4;
+  --panel-3: #e9edf2;
+  --border: #d8dde5;
+  --border-soft: #e3e8ef;
+  --text: #1d2532;
+  --dim: #4d5b70;
+  --faint: #7b8aa0;
+  --green: #15803d;
+  --red: #d92d20;
+  --blue: #175cd3;
+  --amber: #b54708;
+  --purple: #6941c6;
+  --cyan: #0e7490;
+  --violet: #4f46e5;
+  --code-ink: #243044;
+  --surface: linear-gradient(180deg, #ffffff 0%, #f3f5f8 100%);
+  --chip-bg: rgba(255, 255, 255, 0.7);
+  --overlay-bg: rgba(244, 242, 236, 0.6);
+  --topbar-bg: rgba(255, 255, 255, 0.78);
+  --shadow: 0 10px 30px rgba(29, 37, 50, 0.1);
 }
 
 * {
@@ -47,6 +81,14 @@ body {
   line-height: 1.5;
 }
 
+/* Day: morning paper — warm wash, same aurora idea at daylight intensity. */
+:root[data-theme='light'] body {
+  background:
+    radial-gradient(1100px 700px at 8% -10%, rgba(105, 65, 198, 0.08), transparent 62%),
+    radial-gradient(1000px 720px at 102% 108%, rgba(14, 116, 144, 0.07), transparent 60%),
+    linear-gradient(180deg, #f4f2ec 0%, #eef0f4 100%);
+}
+
 #app {
   min-height: 100vh;
 }
@@ -66,7 +108,7 @@ pre {
   font-family: var(--mono);
   font-size: 16px;
   line-height: 1.55;
-  color: #cfdded;
+  color: var(--code-ink);
   white-space: pre-wrap;
   word-break: break-word;
 }

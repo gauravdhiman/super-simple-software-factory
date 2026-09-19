@@ -840,7 +840,7 @@ function selectPhase(p: Phase) {
 .ctx-bar {
   height: 6px;
   border-radius: 999px;
-  background: rgba(6, 8, 15, 0.75);
+  background: var(--overlay-bg);
   border: 1px solid var(--border-soft);
   overflow: hidden;
 }

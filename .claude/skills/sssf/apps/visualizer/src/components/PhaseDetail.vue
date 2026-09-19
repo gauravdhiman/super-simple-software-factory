@@ -805,7 +805,7 @@ function togglePanel(id: string) {
   padding: 2px 12px;
   border: 1px solid var(--border-soft);
   border-radius: 999px;
-  background: rgba(19, 26, 38, 0.6);
+  background: var(--chip-bg);
   font-family: var(--mono);
   font-size: 16px;
   overflow-wrap: anywhere;
@@ -1238,7 +1238,7 @@ h3:first-child {
   border: 1px solid var(--border-soft);
   border-radius: 8px;
   padding: 10px 12px;
-  background: rgba(6, 8, 15, 0.55);
+  background: var(--overlay-bg);
   max-height: 42vh;
   overflow: auto;
 }

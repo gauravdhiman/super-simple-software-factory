@@ -310,12 +310,12 @@ const hiddenRowCount = computed(() =>
 
 .card-archive:hover {
   background: rgba(255, 111, 103, 0.16);
-  color: #ff6f67;
+  color: var(--red);
 }
 
 .card:hover {
   border-color: rgba(148, 163, 255, 0.45);
-  box-shadow: 0 10px 34px rgba(148, 163, 255, 0.12);
+  box-shadow: var(--shadow);
   transform: translateY(-2px);
 }
 
