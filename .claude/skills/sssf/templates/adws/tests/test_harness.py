@@ -43,15 +43,15 @@ agents:
 
 
 def test_known_harnesses_resolve(repo, monkeypatch):
-    for name in ("pi", "muse", "opencode", "codex", "omp"):
+    for name in ("pi", "muse", "opencode", "codex", "omp", "claude_code"):
         module = harness.load(name)
         assert module.BINARY and len(module.BINARY) == 2
         assert isinstance(module.IMPLEMENTED, bool)
         assert callable(module.resolve_model)
         assert callable(module.run)
         assert callable(module.context_window)
-    # claude_code is schema-valid but stubbed: loads, refuses at validate
-    assert harness.load("claude_code").IMPLEMENTED is False
+    # claude_code is implemented; nothing remains stubbed
+    assert harness.load("claude_code").IMPLEMENTED is True
     with pytest.raises(harness.UnknownHarness):
         harness.load("definitely-not-a-harness")
 
@@ -89,11 +89,10 @@ def test_validate_rejects_missing_binary(repo, monkeypatch):
         agents.validate(cfg, ["scout"])
 
 
-def test_validate_rejects_unimplemented_harness(repo, monkeypatch):
+def test_validate_accepts_implemented_harness(repo, monkeypatch):
     monkeypatch.setenv("CLAUDE_PATH", "/bin/ls")
     cfg = _config_with_agent(MINIMAL, "claude_code")
-    with pytest.raises(SystemExit, match="not implemented"):
-        agents.validate(cfg, ["scout"])
+    agents.validate(cfg, ["scout"])  # binary present, prompts present, model non-empty
 
 
 def test_request_fields_are_harness_generic(repo):
