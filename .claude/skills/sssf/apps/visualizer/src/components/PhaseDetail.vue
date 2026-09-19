@@ -676,7 +676,7 @@ function togglePanel(id: string) {
 .detail {
   margin: 0 28px 28px;
   border: 1px solid var(--border-soft);
-  border-radius: 16px;
+  border-radius: 0;
   background: var(--surface);
 }
 
@@ -688,7 +688,7 @@ function togglePanel(id: string) {
   padding: 14px 18px;
   border-bottom: 1px solid var(--border);
   background: var(--panel-2);
-  border-radius: 10px 10px 0 0;
+  border-radius: 0;
 }
 
 .d-main {
@@ -717,7 +717,7 @@ function togglePanel(id: string) {
   gap: 7px;
   padding: 2px 12px;
   border: 1px solid var(--border-soft);
-  border-radius: 999px;
+  border-radius: 0;
   background: var(--panel-3);
   font-size: 16px;
   white-space: nowrap;
@@ -734,7 +734,7 @@ function togglePanel(id: string) {
 .close {
   background: none;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 0;
   color: var(--dim);
   font-family: var(--mono);
   font-size: 16px;
@@ -804,8 +804,8 @@ function togglePanel(id: string) {
   gap: 8px;
   padding: 2px 12px;
   border: 1px solid var(--border-soft);
-  border-radius: 999px;
-  background: rgba(19, 26, 38, 0.6);
+  border-radius: 0;
+  background: var(--chip-bg);
   font-family: var(--mono);
   font-size: 16px;
   overflow-wrap: anywhere;
@@ -861,7 +861,7 @@ h3:first-child {
 .prompt-panel {
   margin-bottom: 10px;
   border: 1px solid var(--border-soft);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--panel-3);
   overflow: hidden;
 }
@@ -913,7 +913,7 @@ h3:first-child {
 .prompt-tools button {
   padding: 2px 12px;
   border: 1px solid var(--border-soft);
-  border-radius: 6px;
+  border-radius: 0;
   background: none;
   color: var(--dim);
   font-family: var(--mono);
@@ -941,7 +941,7 @@ h3:first-child {
   padding: 10px 14px;
   border: 1px solid var(--border-soft);
   border-left-width: 3px;
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--panel-3);
 }
 
@@ -1162,7 +1162,7 @@ h3:first-child {
   padding: 7px 6px;
   background: none;
   border: none;
-  border-radius: 6px;
+  border-radius: 0;
   color: var(--text);
   font-family: var(--mono);
   font-size: 16px;
@@ -1202,7 +1202,7 @@ h3:first-child {
   margin: 6px 0 14px;
   padding: 14px 16px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 0;
   background: var(--panel-3);
 }
 
@@ -1236,9 +1236,9 @@ h3:first-child {
    the full payload is always reachable, never visually cut off. */
 .p-pre {
   border: 1px solid var(--border-soft);
-  border-radius: 8px;
+  border-radius: 0;
   padding: 10px 12px;
-  background: rgba(6, 8, 15, 0.55);
+  background: var(--overlay-bg);
   max-height: 42vh;
   overflow: auto;
 }

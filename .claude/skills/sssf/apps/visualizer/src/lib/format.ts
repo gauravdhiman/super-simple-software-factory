@@ -28,6 +28,23 @@ export function fmtDate(iso: string | null | undefined): string {
   return `${d.toLocaleDateString([], { month: 'short', day: 'numeric' })} ${fmtClock(iso)}`
 }
 
+/** Human recency: "just now", "4m ago", "3h ago", "Sep 18". Drives the list
+ * view's latest-first reading — the top row is newest, and it says so. */
+export function fmtAgo(iso: string | null | undefined, nowMs = Date.now()): string {
+  const t = ts(iso)
+  if (!Number.isFinite(t)) return '—'
+  const s = Math.max(0, Math.floor((nowMs - t) / 1000))
+  if (s < 10) return 'just now'
+  if (s < 60) return `${s}s ago`
+  const m = Math.floor(s / 60)
+  if (m < 60) return `${m}m ago`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h}h ago`
+  const d = Math.floor(h / 24)
+  if (d < 7) return `${d}d ago`
+  return new Date(t).toLocaleDateString([], { month: 'short', day: 'numeric' })
+}
+
 export function fmtTokens(n: number | null | undefined): string {
   if (n == null) return '—'
   if (n < 1000) return String(n)

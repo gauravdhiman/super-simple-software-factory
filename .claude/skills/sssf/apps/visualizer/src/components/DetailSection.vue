@@ -41,7 +41,7 @@ defineEmits<{ toggle: [] }>()
   background: none;
   border: none;
   border-bottom: 1px solid var(--border-soft);
-  border-radius: 6px 6px 0 0;
+  border-radius: 0;
   color: var(--dim);
   font-size: 16px;
   font-weight: 700;

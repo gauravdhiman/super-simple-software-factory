@@ -57,10 +57,10 @@ const text = computed(() => {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 3px 12px;
+  padding: 3px 10px;
   border: 1px solid var(--border-soft);
-  border-radius: 999px;
-  background: rgba(19, 26, 38, 0.6);
+  border-radius: 0;
+  background: var(--chip-bg);
   font-size: 16px;
   white-space: nowrap;
 }

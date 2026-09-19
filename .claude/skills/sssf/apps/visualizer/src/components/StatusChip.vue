@@ -23,10 +23,14 @@ const ICONS: Record<string, unknown> = {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 3px 13px 3px 10px;
-  border-radius: 999px;
+  padding: 3px 10px;
+  border-radius: 0;
   border: 1px solid var(--border);
-  font-size: 16px;
+  border-left-width: 3px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--dim);
   white-space: nowrap;
 }

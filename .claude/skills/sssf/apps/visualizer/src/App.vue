@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { Moon, Sun } from 'lucide-vue-next'
 import { useRoute, hrefFor, phaseCrumb } from './lib/router'
+import { useTheme } from './lib/theme'
 import SessionsList from './components/SessionsList.vue'
 import SessionTrace from './components/SessionTrace.vue'
 
 const route = useRoute()
+const { theme, toggle } = useTheme()
 </script>
 
 <template>
@@ -13,9 +16,9 @@ const route = useRoute()
         <!-- Inline copy of public/logo.svg (the favicon) so the mark renders
              crisply with no fetch; keep the two in sync. -->
         <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
-          <rect x="4" y="6" width="17" height="5" rx="2.5" fill="#e8b64a" />
-          <rect x="8" y="13.5" width="20" height="5" rx="2.5" fill="#c89bff" />
-          <rect x="4" y="21" width="13" height="5" rx="2.5" fill="#5ad2dd" />
+          <rect x="4" y="6" width="17" height="5" fill="#e8b64a" />
+          <rect x="8" y="13.5" width="20" height="5" fill="#c89bff" />
+          <rect x="4" y="21" width="13" height="5" fill="#5ad2dd" />
         </svg>
         <span class="brand">Super Simple Software Factory</span>
         <span class="sep">›</span>
@@ -32,6 +35,15 @@ const route = useRoute()
         </template>
       </nav>
       <span class="live-hint"><span class="live-dot" /> live</span>
+      <button
+        class="theme-toggle"
+        type="button"
+        :title="theme === 'dark' ? 'Switch to day theme' : 'Switch to night theme'"
+        :aria-label="theme === 'dark' ? 'Switch to day theme' : 'Switch to night theme'"
+        @click="toggle"
+      >
+        <component :is="theme === 'dark' ? Sun : Moon" :size="20" :stroke-width="2" />
+      </button>
     </header>
     <main>
       <SessionsList v-if="!route.adwId" />
@@ -46,7 +58,7 @@ const route = useRoute()
   align-items: center;
   justify-content: space-between;
   padding: 15px 28px;
-  background: rgba(11, 15, 24, 0.72);
+  background: var(--topbar-bg);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   position: sticky;
@@ -116,16 +128,44 @@ const route = useRoute()
   align-items: center;
   gap: 8px;
   color: var(--dim);
-  font-size: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
 .live-dot {
   width: 9px;
   height: 9px;
-  border-radius: 50%;
+  border-radius: 0;
   background: var(--green);
   box-shadow: 0 0 10px rgba(74, 222, 128, 0.7);
   animation: pulse 1.6s ease-in-out infinite;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  margin-left: 14px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--panel);
+  color: var(--dim);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.theme-toggle:hover {
+  color: var(--amber);
+  border-color: var(--amber);
+  transform: translateY(-1px);
 }
 </style>

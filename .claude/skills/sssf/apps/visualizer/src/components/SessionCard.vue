@@ -267,7 +267,8 @@ const hiddenRowCount = computed(() =>
   padding: 20px 22px;
   position: relative;          /* anchors the archive button */
   border: 1px solid var(--border-soft);
-  border-radius: 16px;
+  border-left-width: 3px;
+  border-radius: 0;
   background: var(--surface);
   color: var(--text);
   cursor: pointer;
@@ -287,7 +288,7 @@ const hiddenRowCount = computed(() =>
   height: 26px;
   padding: 0;
   border: 0;
-  border-radius: 8px;
+  border-radius: 0;
   background: transparent;
   color: var(--dim);
   font-family: inherit;
@@ -310,22 +311,26 @@ const hiddenRowCount = computed(() =>
 
 .card-archive:hover {
   background: rgba(255, 111, 103, 0.16);
-  color: #ff6f67;
+  color: var(--red);
 }
 
 .card:hover {
   border-color: rgba(148, 163, 255, 0.45);
-  box-shadow: 0 10px 34px rgba(148, 163, 255, 0.12);
+  box-shadow: var(--shadow);
   transform: translateY(-2px);
 }
 
 .card.running {
-  border-color: rgba(108, 182, 255, 0.6);
+  border-left-color: var(--blue);
   box-shadow: 0 0 22px rgba(108, 182, 255, 0.16);
 }
 
 .card.fail {
-  border-color: rgba(255, 111, 103, 0.6);
+  border-left-color: var(--red);
+}
+
+.card.success {
+  border-left-color: var(--green);
 }
 
 /* Text rows must never absorb flex shrink — the fixed-height card squeezes
@@ -448,7 +453,7 @@ const hiddenRowCount = computed(() =>
   top: 50%;
   width: 9px;
   height: 9px;
-  border-radius: 50%;
+  border-radius: 0;
   transform: translate(-50%, -50%);
 }
 
